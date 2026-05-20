@@ -1,12 +1,28 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppLayout } from './layouts/AppLayout';
 import { DashboardPage } from './pages/DashboardPage';
+import { ProjectsPage } from './pages/ProjectsPage';
+import { EmployeesPage } from './pages/EmployeesPage';
+import { TasksPage } from './pages/TasksPage';
+import { AllocationsPage } from './pages/AllocationsPage';
+import { TimesheetsPage } from './pages/TimesheetsPage';
+import { DepartmentsPage } from './pages/DepartmentsPage';
+import { SkillsPage } from './pages/SkillsPage';
+import { GanttPage } from './pages/GanttPage';
 
 export default function App() {
   return (
     <Routes>
       <Route element={<AppLayout />}>
         <Route index element={<DashboardPage />} />
+        <Route path="projects" element={<ProjectsPage />} />
+        <Route path="tasks" element={<TasksPage />} />
+        <Route path="employees" element={<EmployeesPage />} />
+        <Route path="allocations" element={<AllocationsPage />} />
+        <Route path="timesheets" element={<TimesheetsPage />} />
+        <Route path="departments" element={<DepartmentsPage />} />
+        <Route path="skills" element={<SkillsPage />} />
+        <Route path="gantt" element={<GanttPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
