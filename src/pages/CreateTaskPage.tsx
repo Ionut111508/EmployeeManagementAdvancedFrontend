@@ -1,0 +1,40 @@
+import { FormEvent, useState } from 'react';
+import { api } from '../api/endpoints';
+import { PageHeader } from '../components/ui/PageHeader';
+import { useAsync } from '../hooks/useAsync';
+
+export function CreateTaskPage() {
+  const projects = useAsync(api.projects, []);
+  const [message, setMessage] = useState<string | null>(null);
+  const [form, setForm] = useState({ projectId: '', taskId: '', taskName: '', estimatedHours: '40', descriptionId: '', taskDescriptionText: '' });
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    setMessage(null);
+    try {
+      await api.createDescription({ descriptionId: form.descriptionId, taskDescriptionText: form.taskDescriptionText });
+      await api.createTask({ projectId: form.projectId, taskId: form.taskId, taskName: form.taskName, estimatedHours: Number(form.estimatedHours), descriptionId: form.descriptionId });
+      setMessage('Task-ul a fost creat cu succes.');
+      setForm({ projectId: '', taskId: '', taskName: '', estimatedHours: '40', descriptionId: '', taskDescriptionText: '' });
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Nu am putut crea task-ul.');
+    }
+  }
+
+  return <section className="page-stack">
+    <PageHeader eyebrow="Create" title="Create task" description="Creează o descriere și apoi task-ul asociat unui proiect." />
+    <form className="card form-grid" onSubmit={handleSubmit}>
+      <select className="field" value={form.projectId} onChange={e => setForm({ ...form, projectId: e.target.value })} required>
+        <option value="">Select project</option>
+        {(projects.data ?? []).map(p => <option key={p.projectId} value={p.projectId}>{p.projectName}</option>)}
+      </select>
+      <input className="field" placeholder="Task ID" value={form.taskId} onChange={e => setForm({ ...form, taskId: e.target.value })} required />
+      <input className="field" placeholder="Task name" value={form.taskName} onChange={e => setForm({ ...form, taskName: e.target.value })} required />
+      <input className="field" type="number" min="1" placeholder="Estimated hours" value={form.estimatedHours} onChange={e => setForm({ ...form, estimatedHours: e.target.value })} required />
+      <input className="field" placeholder="Description ID" value={form.descriptionId} onChange={e => setForm({ ...form, descriptionId: e.target.value })} required />
+      <input className="field" placeholder="Description text" value={form.taskDescriptionText} onChange={e => setForm({ ...form, taskDescriptionText: e.target.value })} required />
+      <button className="btn">Create task</button>
+      {message && <p className="muted form-message">{message}</p>}
+    </form>
+  </section>;
+}
