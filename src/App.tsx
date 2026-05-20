@@ -8,6 +8,7 @@ import { CreateEmployeePage } from './pages/CreateEmployeePage';
 import { TasksPage } from './pages/TasksPage';
 import { CreateTaskPage } from './pages/CreateTaskPage';
 import { AllocationsPage } from './pages/AllocationsPage';
+import { CreateAllocationPage } from './pages/CreateAllocationPage';
 import { TimesheetsPage } from './pages/TimesheetsPage';
 import { DepartmentsPage } from './pages/DepartmentsPage';
 import { SkillsPage } from './pages/SkillsPage';
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="employees/create" element={<CreateEmployeePage />} />
         <Route path="roles" element={<RolesPage />} />
         <Route path="allocations" element={<AllocationsPage />} />
+        <Route path="allocations/create" element={<CreateAllocationPage />} />
         <Route path="timesheets" element={<TimesheetsPage />} />
         <Route path="departments" element={<DepartmentsPage />} />
         <Route path="skills" element={<SkillsPage />} />
