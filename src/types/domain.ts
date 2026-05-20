@@ -1,6 +1,7 @@
 export type UserRole = 'Admin' | 'Manager' | 'Employee';
 
 export interface Account { accountId: string; username: string; }
+export interface AccountCreate { accountId: string; username: string; password: string; }
 export interface WorkNorm { workNormId: string; workNormName: string; workHours: number; }
 export interface Department { departmentId: string; departmentName: string; }
 export interface Skill { skillId: string; skillName: string; skillLevel?: string | null; }
@@ -17,8 +18,28 @@ export interface Employee {
   workNorm?: WorkNorm | null;
 }
 
+export interface EmployeeCreate {
+  employeeId: string;
+  lastName: string;
+  firstName: string;
+  email: string;
+  phoneNumber: string;
+  accountId: string;
+  workNormId: string;
+}
+
+export interface EmployeeRole {
+  employeeId: string;
+  fullName: string;
+  username: string;
+  role: UserRole;
+  projectsManaged: number;
+  description: string;
+}
+
 export interface Project { projectId: string; projectName: string; }
 export interface TaskDescription { descriptionId: string; taskDescriptionText?: string | null; }
+export interface TaskDescriptionCreate { descriptionId: string; taskDescriptionText: string; }
 
 export interface TaskItem {
   projectId: string;
@@ -28,6 +49,14 @@ export interface TaskItem {
   descriptionId?: string | null;
   project?: Project | null;
   description?: TaskDescription | null;
+}
+
+export interface TaskCreate {
+  projectId: string;
+  taskId: string;
+  taskName: string;
+  estimatedHours: number;
+  descriptionId: string;
 }
 
 export interface Allocation {
