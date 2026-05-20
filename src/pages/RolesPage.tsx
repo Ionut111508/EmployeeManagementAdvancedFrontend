@@ -1,4 +1,5 @@
 import { ShieldCheck } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { api } from '../api/endpoints';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Status } from '../components/ui/Status';
@@ -18,9 +19,9 @@ function RoleColumn({ role, people }: { role: UserRole; people: EmployeeRole[] }
       <span className={`badge role-${role.toLowerCase()}`}>{people.length}</span>
     </div>
     <h2>{roleLabels[role]}</h2>
-    <p className="muted">{role === 'Admin' ? 'Configurare si administrare.' : role === 'Manager' ? 'Coordonare proiecte si echipe.' : 'Executie task-uri si pontaj.'}</p>
+    <p className="muted">{role === 'Admin' ? 'Administrare aplicatie.' : role === 'Manager' ? 'Coordonare proiecte.' : 'Executie task-uri.'}</p>
     <div className="role-list">
-      {people.map(person => <div className="role-list-item" key={person.employeeId}><strong>{person.fullName}</strong><span>{person.username}</span></div>)}
+      {people.map(person => <div className="role-list-item" key={person.employeeId}><div><strong>{person.fullName}</strong><p className="muted">{person.username}</p></div><Link className="btn-link" to={'/people/' + person.employeeId}>Details</Link></div>)}
       {people.length === 0 && <p className="muted">Nu exista persoane in aceasta categorie.</p>}
     </div>
   </article>;
