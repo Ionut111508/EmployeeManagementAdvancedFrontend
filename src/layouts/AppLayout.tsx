@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { BarChart3, BriefcaseBusiness, CheckSquare, Clock3, Gauge, Layers3, Network, Users, Wrench } from 'lucide-react';
+import { BarChart3, BriefcaseBusiness, CheckSquare, Clock3, Gauge, Layers3, Network, ShieldCheck, Users, Wrench } from 'lucide-react';
 import { API_BASE_URL } from '../api/http';
 
 const navItems = [
@@ -7,6 +7,7 @@ const navItems = [
   { to: '/projects', label: 'Projects', icon: BriefcaseBusiness },
   { to: '/tasks', label: 'Tasks', icon: CheckSquare },
   { to: '/employees', label: 'Employees', icon: Users },
+  { to: '/roles', label: 'Roles', icon: ShieldCheck },
   { to: '/allocations', label: 'Allocations', icon: Network },
   { to: '/timesheets', label: 'Timesheets', icon: Clock3 },
   { to: '/gantt', label: 'Gantt', icon: BarChart3 },
