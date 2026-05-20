@@ -34,9 +34,13 @@ export interface Allocation {
   employeeId: string;
   projectId: string;
   taskId: string;
+  employeeName?: string | null;
+  projectName?: string | null;
+  taskName?: string | null;
   allocationStartDate: string;
   allocationEndDate?: string | null;
   allocatedHours: number;
+  totalAllocationHours?: number | null;
   employee?: Employee | null;
   taskItem?: TaskItem | null;
 }
