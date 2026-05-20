@@ -6,6 +6,9 @@ export interface WorkNorm { workNormId: string; workNormName: string; workHours:
 export interface Department { departmentId: string; departmentName: string; }
 export interface Skill { skillId: string; skillName: string; skillLevel?: string | null; }
 
+export interface LoginRequest { username: string; password: string; }
+export interface LoginResponse { token: string; username: string; role: UserRole; fullName: string; employeeId?: string | null; expiresAt: string; }
+
 export interface Employee {
   employeeId: string;
   firstName: string;
@@ -72,6 +75,24 @@ export interface Allocation {
   totalAllocationHours?: number | null;
   employee?: Employee | null;
   taskItem?: TaskItem | null;
+}
+
+export interface AllocationCreate {
+  employeeId: string;
+  projectId: string;
+  taskId: string;
+  allocationStartDate: string;
+  allocationEndDate?: string | null;
+  allocatedHours: number;
+}
+
+export interface AutoAllocationCreate {
+  projectId: string;
+  taskId: string;
+  startDate: string;
+  endDate?: string | null;
+  hoursPerDay: number;
+  skillId?: string | null;
 }
 
 export interface Timesheet {
