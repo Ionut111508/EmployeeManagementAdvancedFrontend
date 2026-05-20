@@ -1,11 +1,23 @@
 import { http } from './http';
-import type { Allocation, Department, Employee, Project, ProjectSummary, Skill, TaskComment, TaskItem, Timesheet, WorkNorm } from '../types/domain';
+import type { Account, AccountCreate, Allocation, Department, Employee, EmployeeCreate, EmployeeRole, Project, ProjectSummary, Skill, TaskComment, TaskCreate, TaskDescription, TaskDescriptionCreate, TaskItem, Timesheet, WorkNorm } from '../types/domain';
 
 export const api = {
   projects: () => http.get<Project[]>('/Projects').then(r => r.data),
   projectById: (id: string) => http.get<Project>(`/Projects/${id}`).then(r => r.data),
+
+  accounts: () => http.get<Account[]>('/Accounts').then(r => r.data),
+  createAccount: (payload: AccountCreate) => http.post<Account>('/Accounts', payload).then(r => r.data),
+
   employees: () => http.get<Employee[]>('/Employees').then(r => r.data),
+  createEmployee: (payload: EmployeeCreate) => http.post<Employee>('/Employees', payload).then(r => r.data),
+  employeeRoles: () => http.get<EmployeeRole[]>('/Roles/employees').then(r => r.data),
+
   tasks: () => http.get<TaskItem[]>('/Tasks').then(r => r.data),
+  createTask: (payload: TaskCreate) => http.post<TaskItem>('/Tasks', payload).then(r => r.data),
+
+  descriptions: () => http.get<TaskDescription[]>('/Descriptions').then(r => r.data),
+  createDescription: (payload: TaskDescriptionCreate) => http.post<TaskDescription>('/Descriptions', payload).then(r => r.data),
+
   allocations: () => http.get<Allocation[]>('/Allocations').then(r => r.data),
   timesheets: () => http.get<Timesheet[]>('/Timesheets').then(r => r.data),
   departments: () => http.get<Department[]>('/Departments').then(r => r.data),
