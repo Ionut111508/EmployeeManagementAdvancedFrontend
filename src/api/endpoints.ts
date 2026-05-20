@@ -1,7 +1,9 @@
 import { http } from './http';
-import type { Account, AccountCreate, Allocation, Department, Employee, EmployeeCreate, EmployeeRole, Project, ProjectSummary, Skill, TaskComment, TaskCreate, TaskDescription, TaskDescriptionCreate, TaskItem, Timesheet, WorkNorm } from '../types/domain';
+import type { Account, AccountCreate, Allocation, AllocationCreate, AutoAllocationCreate, Department, Employee, EmployeeCreate, EmployeeRole, LoginRequest, LoginResponse, Project, ProjectSummary, Skill, TaskComment, TaskCreate, TaskDescription, TaskDescriptionCreate, TaskItem, Timesheet, WorkNorm } from '../types/domain';
 
 export const api = {
+  login: (payload: LoginRequest) => http.post<LoginResponse>('/Login', payload).then(r => r.data),
+
   projects: () => http.get<Project[]>('/Projects').then(r => r.data),
   projectById: (id: string) => http.get<Project>(`/Projects/${id}`).then(r => r.data),
 
@@ -19,6 +21,9 @@ export const api = {
   createDescription: (payload: TaskDescriptionCreate) => http.post<TaskDescription>('/Descriptions', payload).then(r => r.data),
 
   allocations: () => http.get<Allocation[]>('/Allocations').then(r => r.data),
+  createAllocation: (payload: AllocationCreate) => http.post<Allocation>('/Allocations', payload).then(r => r.data),
+  createAutoAllocation: (payload: AutoAllocationCreate) => http.post<Allocation>('/Allocations/auto', payload).then(r => r.data),
+
   timesheets: () => http.get<Timesheet[]>('/Timesheets').then(r => r.data),
   departments: () => http.get<Department[]>('/Departments').then(r => r.data),
   skills: () => http.get<Skill[]>('/Skills').then(r => r.data),
