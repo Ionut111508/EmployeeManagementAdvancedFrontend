@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppLayout } from './layouts/AppLayout';
 import { DashboardPage } from './pages/DashboardPage';
 import { ProjectsPage } from './pages/ProjectsPage';
+import { ProjectDetailsPage } from './pages/ProjectDetailsPage';
 import { EmployeesPage } from './pages/EmployeesPage';
 import { TasksPage } from './pages/TasksPage';
 import { AllocationsPage } from './pages/AllocationsPage';
@@ -16,6 +17,7 @@ export default function App() {
       <Route element={<AppLayout />}>
         <Route index element={<DashboardPage />} />
         <Route path="projects" element={<ProjectsPage />} />
+        <Route path="projects/:projectId" element={<ProjectDetailsPage />} />
         <Route path="tasks" element={<TasksPage />} />
         <Route path="employees" element={<EmployeesPage />} />
         <Route path="allocations" element={<AllocationsPage />} />
