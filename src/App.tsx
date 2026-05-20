@@ -10,6 +10,7 @@ import { TimesheetsPage } from './pages/TimesheetsPage';
 import { DepartmentsPage } from './pages/DepartmentsPage';
 import { SkillsPage } from './pages/SkillsPage';
 import { GanttPage } from './pages/GanttPage';
+import { RolesPage } from './pages/RolesPage';
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="projects/:projectId" element={<ProjectDetailsPage />} />
         <Route path="tasks" element={<TasksPage />} />
         <Route path="employees" element={<EmployeesPage />} />
+        <Route path="roles" element={<RolesPage />} />
         <Route path="allocations" element={<AllocationsPage />} />
         <Route path="timesheets" element={<TimesheetsPage />} />
         <Route path="departments" element={<DepartmentsPage />} />
