@@ -5,6 +5,7 @@ import { ProjectsPage } from './pages/ProjectsPage';
 import { ProjectDetailsPage } from './pages/ProjectDetailsPage';
 import { EmployeesPage } from './pages/EmployeesPage';
 import { TasksPage } from './pages/TasksPage';
+import { CreateTaskPage } from './pages/CreateTaskPage';
 import { AllocationsPage } from './pages/AllocationsPage';
 import { TimesheetsPage } from './pages/TimesheetsPage';
 import { DepartmentsPage } from './pages/DepartmentsPage';
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="projects" element={<ProjectsPage />} />
         <Route path="projects/:projectId" element={<ProjectDetailsPage />} />
         <Route path="tasks" element={<TasksPage />} />
+        <Route path="tasks/create" element={<CreateTaskPage />} />
         <Route path="employees" element={<EmployeesPage />} />
         <Route path="roles" element={<RolesPage />} />
         <Route path="allocations" element={<AllocationsPage />} />
