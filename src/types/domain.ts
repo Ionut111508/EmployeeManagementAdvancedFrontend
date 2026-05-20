@@ -114,6 +114,23 @@ export interface TaskComment {
   employeeId: string;
 }
 
+export interface EmployeeSkill {
+  employeeId: string;
+  skillId: string;
+  acquiredDate?: string | null;
+  employee?: Employee | null;
+  skill?: Skill | null;
+}
+
+export interface EmployeeDepartment {
+  employeeId: string;
+  departmentId: string;
+  startDate: string;
+  endDate?: string | null;
+  employee?: Employee | null;
+  department?: Department | null;
+}
+
 export interface ProjectSummary {
   projectId: string;
   projectName: string;
