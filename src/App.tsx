@@ -15,6 +15,7 @@ import { TimesheetsPage } from './pages/TimesheetsPage';
 import { DepartmentsPage } from './pages/DepartmentsPage';
 import { SkillsPage } from './pages/SkillsPage';
 import { AssignmentsPage } from './pages/AssignmentsPage';
+import { EmployeeLeavesPage } from './pages/EmployeeLeavesPage';
 import { GanttPage } from './pages/GanttPage';
 import { RolesPage } from './pages/RolesPage';
 
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="allocations" element={<AllocationsPage />} />
         <Route path="allocations/create" element={<CreateAllocationPage />} />
         <Route path="timesheets" element={<TimesheetsPage />} />
+        <Route path="leaves" element={<EmployeeLeavesPage />} />
         <Route path="departments" element={<DepartmentsPage />} />
         <Route path="skills" element={<SkillsPage />} />
         <Route path="assignments" element={<AssignmentsPage />} />
