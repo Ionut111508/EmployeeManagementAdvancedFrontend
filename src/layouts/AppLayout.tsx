@@ -10,6 +10,7 @@ const navItems = [
   { to: '/roles', label: 'Roles', icon: ShieldCheck },
   { to: '/allocations', label: 'Allocations', icon: Network },
   { to: '/assignments', label: 'Assignments', icon: Link2 },
+  { to: '/leaves', label: 'Leaves', icon: Clock3 },
   { to: '/timesheets', label: 'Timesheets', icon: Clock3 },
   { to: '/gantt', label: 'Gantt', icon: BarChart3 },
   { to: '/departments', label: 'Departments', icon: Layers3 },
