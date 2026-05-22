@@ -1,7 +1,7 @@
 export type UserRole = 'Admin' | 'Manager' | 'Employee';
 
-export interface Account { accountId: string; username: string; role: UserRole; }
-export interface AccountCreate { accountId: string; username: string; password: string; role: UserRole; }
+export interface Account { accountId: string; username: string; role?: UserRole; }
+export interface AccountCreate { accountId: string; username: string; password: string; role?: UserRole; }
 export interface WorkNorm { workNormId: string; workNormName: string; workHours: number; }
 export interface Department { departmentId: string; departmentName: string; }
 export interface Skill { skillId: string; skillName: string; skillLevel?: string | null; }
