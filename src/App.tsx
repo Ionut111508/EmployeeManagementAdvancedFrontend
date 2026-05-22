@@ -8,11 +8,13 @@ import { EmployeeDetailsPage } from './pages/EmployeeDetailsPage';
 import { CreateEmployeePage } from './pages/CreateEmployeePage';
 import { TasksPage } from './pages/TasksPage';
 import { CreateTaskPage } from './pages/CreateTaskPage';
+import { TaskDetailsPage } from './pages/TaskDetailsPage';
 import { AllocationsPage } from './pages/AllocationsPage';
 import { CreateAllocationPage } from './pages/CreateAllocationPage';
 import { TimesheetsPage } from './pages/TimesheetsPage';
 import { DepartmentsPage } from './pages/DepartmentsPage';
 import { SkillsPage } from './pages/SkillsPage';
+import { AssignmentsPage } from './pages/AssignmentsPage';
 import { GanttPage } from './pages/GanttPage';
 import { RolesPage } from './pages/RolesPage';
 
@@ -25,6 +27,7 @@ export default function App() {
         <Route path="projects/:projectId" element={<ProjectDetailsPage />} />
         <Route path="tasks" element={<TasksPage />} />
         <Route path="tasks/create" element={<CreateTaskPage />} />
+        <Route path="task-view/:projectId/:taskId" element={<TaskDetailsPage />} />
         <Route path="employees" element={<EmployeesPage />} />
         <Route path="people/:employeeId" element={<EmployeeDetailsPage />} />
         <Route path="employees/create" element={<CreateEmployeePage />} />
@@ -34,6 +37,7 @@ export default function App() {
         <Route path="timesheets" element={<TimesheetsPage />} />
         <Route path="departments" element={<DepartmentsPage />} />
         <Route path="skills" element={<SkillsPage />} />
+        <Route path="assignments" element={<AssignmentsPage />} />
         <Route path="gantt" element={<GanttPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

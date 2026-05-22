@@ -122,6 +122,12 @@ export interface EmployeeSkill {
   skill?: Skill | null;
 }
 
+export interface EmployeeSkillCreate {
+  employeeId: string;
+  skillId: string;
+  acquiredDate?: string | null;
+}
+
 export interface EmployeeDepartment {
   employeeId: string;
   departmentId: string;
@@ -129,6 +135,13 @@ export interface EmployeeDepartment {
   endDate?: string | null;
   employee?: Employee | null;
   department?: Department | null;
+}
+
+export interface EmployeeDepartmentCreate {
+  employeeId: string;
+  departmentId: string;
+  startDate: string;
+  endDate?: string | null;
 }
 
 export interface ProjectSummary {
