@@ -1,5 +1,5 @@
 import { http } from './http';
-import type { Account, AccountCreate, Allocation, AllocationCreate, AutoAllocationCreate, Department, Employee, EmployeeCreate, EmployeeDepartment, EmployeeDepartmentCreate, EmployeeRole, EmployeeSkill, EmployeeSkillCreate, LoginRequest, LoginResponse, Project, ProjectSummary, Skill, TaskComment, TaskCreate, TaskDescription, TaskDescriptionCreate, TaskItem, Timesheet, WorkNorm } from '../types/domain';
+import type { Account, AccountCreate, Allocation, AllocationCreate, AutoAllocationCreate, Department, Employee, EmployeeCreate, EmployeeDepartment, EmployeeDepartmentCreate, EmployeeLeave, EmployeeLeaveCreate, EmployeeRole, EmployeeSkill, EmployeeSkillCreate, LoginRequest, LoginResponse, Project, ProjectSummary, Skill, TaskComment, TaskCreate, TaskDescription, TaskDescriptionCreate, TaskItem, Timesheet, WorkNorm } from '../types/domain';
 
 export const api = {
   login: (payload: LoginRequest) => http.post<LoginResponse>('/Login', payload).then(r => r.data),
@@ -31,6 +31,8 @@ export const api = {
   skills: () => http.get<Skill[]>('/Skills').then(r => r.data),
   employeeSkills: () => http.get<EmployeeSkill[]>('/EmployeeSkills').then(r => r.data),
   createEmployeeSkill: (payload: EmployeeSkillCreate) => http.post<EmployeeSkill>('/EmployeeSkills', payload).then(r => r.data),
+  employeeLeaves: () => http.get<EmployeeLeave[]>('/EmployeeLeaves').then(r => r.data),
+  createEmployeeLeave: (payload: EmployeeLeaveCreate) => http.post('/EmployeeLeaves', payload).then(r => r.data),
   workNorms: () => http.get<WorkNorm[]>('/WorkNorms').then(r => r.data),
   taskComments: () => http.get<TaskComment[]>('/TaskComments').then(r => r.data),
   projectSummary: (projectId: string) => http.get<ProjectSummary>(`/Dashboard/project/${projectId}/summary`).then(r => r.data)
