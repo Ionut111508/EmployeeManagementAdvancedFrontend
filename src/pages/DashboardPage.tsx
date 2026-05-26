@@ -21,10 +21,17 @@ export function DashboardPage() {
         <KpiCard icon={Users} label="Employees" value={data.employees.length} hint="human resources" />
         <KpiCard icon={BriefcaseBusiness} label="Projects" value={data.projects.length} hint="active projects" />
         <KpiCard icon={CheckSquare} label="Tasks" value={data.tasks.length} hint="defined tasks" />
+<<<<<<< HEAD
         <KpiCard icon={Network} label="Allocations" value={data.allocations.length} hint="assignments for tasks" />
       </div>
       <div className="grid grid-2">
         <div className="card"><h2>Main workflow</h2><p className="muted">The manager tracks projects, tasks, allocations, and employee timesheets.</p></div>
+=======
+        <KpiCard icon={Network} label="Allocations" value={data.allocations.length} hint="task assignments" />
+      </div>
+      <div className="grid grid-2">
+        <div className="card"><h2>Main workflow</h2><p className="muted">Managers track projects, tasks, allocations, and employee timesheets.</p></div>
+>>>>>>> 0fd9f40032bec48bf6cfcca9de2800957d248042
         <div className="card"><h2>Reported hours</h2><p className="muted">Total timesheet entries: <strong>{data.timesheets.length}</strong></p><KpiCard icon={Clock3} label="Timesheets" value={data.timesheets.length} /></div>
       </div>
     </>}

@@ -17,12 +17,21 @@ export function CreateAllocationPage() {
     try {
       if (automatic) await api.createAutoAllocation({ projectId: form.projectId, taskId: form.taskId, startDate: form.startDate, endDate: form.endDate || null, hoursPerDay: Number(form.hoursPerDay), skillId: form.skillId || null });
       else await api.createAllocation({ employeeId: form.employeeId, projectId: form.projectId, taskId: form.taskId, allocationStartDate: form.startDate, allocationEndDate: form.endDate || null, allocatedHours: Number(form.hoursPerDay) });
+<<<<<<< HEAD
       setMessage('Allocation created successfully.');
     } catch (err) { setMessage(err instanceof Error ? err.message : 'Eroare la creare.'); }
   }
 
   return <section className="page-stack">
     <PageHeader eyebrow="Planning" title="Create allocation" description="Choose to manually select an employee or let the application choose automatically." />
+=======
+      setMessage('Allocation created.');
+    } catch (err) { setMessage(err instanceof Error ? err.message : 'Could not create allocation.'); }
+  }
+
+  return <section className="page-stack">
+    <PageHeader eyebrow="Planning" title="Create allocation" description="Choose the employee manually or let the application select one automatically." />
+>>>>>>> 0fd9f40032bec48bf6cfcca9de2800957d248042
     <form className="card form-grid" onSubmit={submit}>
       <select className="field" value={automatic ? 'yes' : 'no'} onChange={e => setAutomatic(e.target.value === 'yes')}><option value="yes">Automatic</option><option value="no">Manual</option></select>
       {!automatic && <select className="field" value={form.employeeId} onChange={e => setForm({ ...form, employeeId: e.target.value })}><option value="">Employee</option>{(employees.data ?? []).map(e => <option key={e.employeeId} value={e.employeeId}>{e.firstName} {e.lastName}</option>)}</select>}
