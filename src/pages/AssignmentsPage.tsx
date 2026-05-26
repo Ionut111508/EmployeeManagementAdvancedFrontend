@@ -30,7 +30,7 @@ export function AssignmentsPage() {
   }
 
   return <section className="page-stack">
-    <PageHeader eyebrow="Assignments" title="Employee assignments" description="De aici se aloca skill-uri si departamente pentru angajati." />
+    <PageHeader eyebrow="Assignments" title="Employee assignments" description="Assign skills and departments to employees from this page." />
     {message && <div className="card"><p>{message}</p></div>}
     <div className="grid grid-2">
       <form className="card form-grid" onSubmit={assignSkill}>

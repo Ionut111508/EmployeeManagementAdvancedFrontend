@@ -37,17 +37,17 @@ export function GanttPage() {
   const totalDays = Math.max(1, Math.round((max.getTime() - min.getTime()) / day) + 1);
 
   return <section className="page-stack">
-    <PageHeader eyebrow="Planning" title="Gantt Chart" description="Filtrează planificarea după proiect, angajat și status temporal." />
-    <div className="card filter-bar"><strong>Filters</strong><select className="field" value={projectFilter} onChange={e => setProjectFilter(e.target.value)}><option value="all">All projects</option>{projects.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select><select className="field" value={employeeFilter} onChange={e => setEmployeeFilter(e.target.value)}><option value="all">All employees</option>{employees.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select><select className="field" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option value="all">All statuses</option><option value="active">Active now</option><option value="future">Future</option><option value="closed">Closed / overdue</option></select><span className="badge">{filtered.length} alocări</span></div>
+    <PageHeader eyebrow="Planning" title="Gantt Chart" description="Filter the plan by project, employee, and timeline status." />
+    <div className="card filter-bar"><strong>Filters</strong><select className="field" value={projectFilter} onChange={e => setProjectFilter(e.target.value)}><option value="all">All projects</option>{projects.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select><select className="field" value={employeeFilter} onChange={e => setEmployeeFilter(e.target.value)}><option value="all">All employees</option>{employees.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select><select className="field" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option value="all">All statuses</option><option value="active">Active now</option><option value="future">Future</option><option value="closed">Closed / overdue</option></select><span className="badge">{filtered.length} allocations</span></div>
     <Status loading={loading} error={error} empty={filtered.length === 0} />
     {data && filtered.length > 0 && <div className="table-card gantt-card">
-      <div className="gantt-header"><strong>{formatDate(min.toISOString())}</strong><span className="muted">Interval planificare</span><strong>{formatDate(max.toISOString())}</strong></div>
+      <div className="gantt-header"><strong>{formatDate(min.toISOString())}</strong><span className="muted">Planning interval</span><strong>{formatDate(max.toISOString())}</strong></div>
       <div className="gantt-list">
         {filtered.map(item => {
           const left = Math.max(0, ((item.start.getTime() - min.getTime()) / day) / totalDays * 100);
           const width = Math.max(4, (((item.end.getTime() - item.start.getTime()) / day) + 1) / totalDays * 100);
           return <div className="gantt-row" key={`${item.employeeId}-${item.projectId}-${item.taskId}`}>
-            <div className="gantt-label"><strong>{item.taskName ?? item.taskId}</strong><span>{item.employeeName ?? item.employeeId} · {item.projectName ?? item.projectId} · {formatNumber(item.allocatedHours)}h/zi</span></div>
+            <div className="gantt-label"><strong>{item.taskName ?? item.taskId}</strong><span>{item.employeeName ?? item.employeeId} · {item.projectName ?? item.projectId} · {formatNumber(item.allocatedHours)}h/day</span></div>
             <div className="gantt-track"><div className="gantt-bar" style={{ left: `${left}%`, width: `${width}%` }}>{formatDate(item.allocationStartDate)}</div></div>
           </div>;
         })}

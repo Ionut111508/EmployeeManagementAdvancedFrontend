@@ -32,7 +32,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     <form className="login-card" onSubmit={handleSubmit}>
       <div className="brand-mark">PM</div>
       <h1>Sign in</h1>
-      <p className="muted">Autentificare pentru NovaTech Project Suite.</p>
+      <p className="muted">Sign in to NovaTech Project Suite.</p>
       <input className="field" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
       <input className="field" placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
       <button className="btn" disabled={loading}>{loading ? 'Signing in...' : 'Login'}</button>

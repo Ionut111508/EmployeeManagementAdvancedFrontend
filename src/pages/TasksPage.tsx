@@ -17,7 +17,7 @@ export function TasksPage() {
   }
 
   return <section className="page-stack">
-    <PageHeader eyebrow="Task management" title="Tasks" description="Task-uri definite pe proiecte, cu ore estimate si descrieri." />
+    <PageHeader eyebrow="Task management" title="Tasks" description="Tasks defined for projects, including estimated hours and descriptions." />
     {data && <div className="card filter-bar"><strong>Filter by project</strong>{projects.map(([id, name]) => <label key={id} className="muted"><input type="checkbox" checked={selectedProjects.includes(id)} onChange={() => toggleProject(id)} /> {name}</label>)}{selectedProjects.length > 0 && <button className="btn-link" type="button" onClick={() => setSelectedProjects([])}>Clear filters</button>}<span className="badge">{filteredTasks.length} tasks</span></div>}
     <Status loading={loading} error={error} empty={filteredTasks.length === 0} />
     {data && <div className="table-card"><table className="data-table"><thead><tr><th>Task</th><th>Project</th><th>Description</th><th>Estimated</th><th>Action</th></tr></thead><tbody>{filteredTasks.map(t => <tr key={`${t.projectId}-${t.taskId}`}><td><strong>{t.taskName}</strong></td><td>{t.project?.projectName ?? '-'}</td><td>{t.description?.taskDescriptionText ?? '-'}</td><td><span className="badge">{formatNumber(t.estimatedHours)}h</span></td><td><Link className="btn-link" to={'/task-view/' + t.projectId + '/' + t.taskId}>View task</Link></td></tr>)}</tbody></table></div>}
