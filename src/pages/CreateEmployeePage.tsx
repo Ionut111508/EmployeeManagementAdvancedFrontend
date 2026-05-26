@@ -23,11 +23,7 @@ export function CreateEmployeePage() {
   }
 
   return <section className="page-stack">
-<<<<<<< HEAD
-    <PageHeader eyebrow="Create" title="Create employee" description="Create the account and associated employee." />
-=======
     <PageHeader eyebrow="Create" title="Create employee" description="Create the account and the associated employee." />
->>>>>>> 0fd9f40032bec48bf6cfcca9de2800957d248042
     <form className="card form-grid" onSubmit={handleSubmit}>
       <input className="field" placeholder="Internal employee code" value={form.employeeId} onChange={e => setForm({ ...form, employeeId: e.target.value })} required />
       <input className="field" placeholder="Last name" value={form.lastName} onChange={e => setForm({ ...form, lastName: e.target.value })} required />
