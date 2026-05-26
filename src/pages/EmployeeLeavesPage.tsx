@@ -21,11 +21,7 @@ export function EmployeeLeavesPage() {
   }
 
   return <section className="page-stack">
-<<<<<<< HEAD
-    <PageHeader eyebrow="Availability" title="Employee leaves" description="Manage leaves. If no replacement is available, the task must be rescheduled or delayed." />
-=======
     <PageHeader eyebrow="Availability" title="Employee leaves" description="Manage employee leaves. If no replacement is available, the task must be replanned or delayed." />
->>>>>>> 0fd9f40032bec48bf6cfcca9de2800957d248042
     <form className="card form-grid" onSubmit={saveLeave}>
       <select className="field" value={form.employeeId} onChange={e => setForm({ ...form, employeeId: e.target.value })} required><option value="">Employee on leave</option>{(employees.data ?? []).map(e => <option key={e.employeeId} value={e.employeeId}>{e.firstName} {e.lastName}</option>)}</select>
       <input className="field" type="date" value={form.startDate} onChange={e => setForm({ ...form, startDate: e.target.value })} required />
