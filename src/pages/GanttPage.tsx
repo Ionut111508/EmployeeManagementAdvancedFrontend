@@ -37,7 +37,7 @@ export function GanttPage() {
   const totalDays = Math.max(1, Math.round((max.getTime() - min.getTime()) / day) + 1);
 
   return <section className="page-stack">
-    <PageHeader eyebrow="Planning" title="Gantt Chart" description="Filtrează planificarea după proiect, angajat și status temporal." />
+    <PageHeader eyebrow="Planning" title="Gantt Chart" description="Filter planning by project, employee, and temporal status." />
     <div className="card filter-bar"><strong>Filters</strong><select className="field" value={projectFilter} onChange={e => setProjectFilter(e.target.value)}><option value="all">All projects</option>{projects.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select><select className="field" value={employeeFilter} onChange={e => setEmployeeFilter(e.target.value)}><option value="all">All employees</option>{employees.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select><select className="field" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option value="all">All statuses</option><option value="active">Active now</option><option value="future">Future</option><option value="closed">Closed / overdue</option></select><span className="badge">{filtered.length} alocări</span></div>
     <Status loading={loading} error={error} empty={filtered.length === 0} />
     {data && filtered.length > 0 && <div className="table-card gantt-card">

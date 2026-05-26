@@ -14,15 +14,15 @@ export function CreateTaskPage() {
     try {
       await api.createDescription({ descriptionId: form.descriptionId, taskDescriptionText: form.taskDescriptionText });
       await api.createTask({ projectId: form.projectId, taskId: form.taskId, taskName: form.taskName, estimatedHours: Number(form.estimatedHours), descriptionId: form.descriptionId });
-      setMessage('Task-ul a fost creat cu succes.');
+      setMessage('Task created successfully.');
       setForm({ projectId: '', taskId: '', taskName: '', estimatedHours: '40', descriptionId: '', taskDescriptionText: '' });
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : 'Nu am putut crea task-ul.');
+      setMessage(err instanceof Error ? err.message : 'Could not create task.');
     }
   }
 
   return <section className="page-stack">
-    <PageHeader eyebrow="Create" title="Create task" description="Creează o descriere și apoi task-ul asociat unui proiect." />
+    <PageHeader eyebrow="Create" title="Create task" description="Create a description and then the task associated with a project." />
     <form className="card form-grid" onSubmit={handleSubmit}>
       <select className="field" value={form.projectId} onChange={e => setForm({ ...form, projectId: e.target.value })} required>
         <option value="">Select project</option>

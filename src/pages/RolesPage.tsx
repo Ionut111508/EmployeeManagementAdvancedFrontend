@@ -19,10 +19,10 @@ function RoleColumn({ role, people }: { role: UserRole; people: EmployeeRole[] }
       <span className={`badge role-${role.toLowerCase()}`}>{people.length}</span>
     </div>
     <h2>{roleLabels[role]}</h2>
-    <p className="muted">{role === 'Admin' ? 'Administrare aplicatie.' : role === 'Manager' ? 'Coordonare proiecte.' : 'Executie task-uri.'}</p>
+    <p className="muted">{role === 'Admin' ? 'Application management.' : role === 'Manager' ? 'Project coordination.' : 'Task execution.'}</p>
     <div className="role-list">
       {people.map(person => <div className="role-list-item" key={person.employeeId}><div><strong>{person.fullName}</strong><p className="muted">{person.username}</p></div><Link className="btn-link" to={'/people/' + person.employeeId}>Details</Link></div>)}
-      {people.length === 0 && <p className="muted">Nu exista persoane in aceasta categorie.</p>}
+      {people.length === 0 && <p className="muted">No people in this category.</p>}
     </div>
   </article>;
 }
@@ -34,7 +34,7 @@ export function RolesPage() {
   const employees = (data ?? []).filter(item => item.role === 'Employee');
 
   return <section className="page-stack">
-    <PageHeader eyebrow="Access control" title="Roles" description="Rolurile sunt grupate clar pe categorii: administrator, manager si angajat." />
+    <PageHeader eyebrow="Access control" title="Roles" description="Roles are clearly grouped into categories: administrator, manager, and employee." />
     <Status loading={loading} error={error} empty={data?.length === 0} />
     {data && <div className="grid grid-3"><RoleColumn role="Admin" people={admins} /><RoleColumn role="Manager" people={managers} /><RoleColumn role="Employee" people={employees} /></div>}
   </section>;

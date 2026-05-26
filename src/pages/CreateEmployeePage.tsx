@@ -15,15 +15,15 @@ export function CreateEmployeePage() {
     try {
       await api.createAccount({ accountId: form.accountId, username: form.username, password: form.password });
       await api.createEmployee({ employeeId: form.employeeId, lastName: form.lastName, firstName: form.firstName, email: form.email, phoneNumber: form.phoneNumber, accountId: form.accountId, workNormId: form.workNormId });
-      setMessage('Angajatul a fost creat cu succes.');
+      setMessage('Employee created successfully.');
       setForm({ employeeId: '', lastName: '', firstName: '', email: '', phoneNumber: '', accountId: '', username: '', password: 'Password123!', workNormId: 'WN_FULL' });
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : 'Nu am putut crea angajatul.');
+      setMessage(err instanceof Error ? err.message : 'Could not create employee.');
     }
   }
 
   return <section className="page-stack">
-    <PageHeader eyebrow="Create" title="Create employee" description="Creeaza contul si angajatul asociat." />
+    <PageHeader eyebrow="Create" title="Create employee" description="Create the account and associated employee." />
     <form className="card form-grid" onSubmit={handleSubmit}>
       <input className="field" placeholder="Internal employee code" value={form.employeeId} onChange={e => setForm({ ...form, employeeId: e.target.value })} required />
       <input className="field" placeholder="Last name" value={form.lastName} onChange={e => setForm({ ...form, lastName: e.target.value })} required />

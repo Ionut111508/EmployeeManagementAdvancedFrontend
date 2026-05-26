@@ -25,7 +25,7 @@ export function ProjectDetailsPage() {
   }, [projectId]);
 
   return <section className="page-stack">
-    <PageHeader eyebrow="Project details" title={data?.project.projectName ?? 'Project'} description="Detalii proiect, task-uri, alocări și progres calculat din pontaj." actions={<Link className="btn secondary" to="/projects"><ArrowLeft size={16}/> Back</Link>} />
+    <PageHeader eyebrow="Project details" title={data?.project.projectName ?? 'Project'} description="Project details, tasks, allocations, and progress calculated from timesheets." actions={<Link className="btn secondary" to="/projects"><ArrowLeft size={16}/> Back</Link>} />
     <Status loading={loading} error={error} />
     {data && <>
       <div className="grid grid-4">
@@ -34,7 +34,7 @@ export function ProjectDetailsPage() {
         <KpiCard icon={Clock3} label="Estimated" value={`${formatNumber(data.estimatedHours)}h`} />
         <KpiCard icon={Clock3} label="Worked" value={`${formatNumber(data.workedHours)}h`} hint={percent(data.progress)} />
       </div>
-      <div className="card"><h2>Progress</h2><div className="progress-track"><div className="progress-bar" style={{ width: `${data.progress}%` }} /></div><p className="muted progress-label">{percent(data.progress)} completat pe baza orelor pontate.</p></div>
+      <div className="card"><h2>Progress</h2><div className="progress-track"><div className="progress-bar" style={{ width: `${data.progress}%` }} /></div><p className="muted progress-label">{percent(data.progress)} completed based on recorded hours.</p></div>
       <div className="table-card"><h2>Tasks</h2><table className="data-table"><thead><tr><th>Task</th><th>Description</th><th>Estimated</th></tr></thead><tbody>{data.projectTasks.map(task => <tr key={task.taskId}><td><strong>{task.taskName}</strong><br/><span className="muted">{task.taskId}</span></td><td>{task.description?.taskDescriptionText ?? task.descriptionId}</td><td><span className="badge">{formatNumber(task.estimatedHours)}h</span></td></tr>)}</tbody></table></div>
       <div className="table-card"><h2>Allocations</h2><table className="data-table"><thead><tr><th>Employee</th><th>Task</th><th>Period</th><th>Hours/day</th></tr></thead><tbody>{data.projectAllocations.map(allocation => <tr key={`${allocation.employeeId}-${allocation.taskId}`}><td>{allocation.employeeName ?? allocation.employeeId}<br/><span className="muted">{allocation.employeeId}</span></td><td>{allocation.taskName ?? allocation.taskId}</td><td>{formatDate(allocation.allocationStartDate)} - {formatDate(allocation.allocationEndDate)}</td><td><span className="badge">{formatNumber(allocation.allocatedHours)}h</span></td></tr>)}</tbody></table></div>
     </>}

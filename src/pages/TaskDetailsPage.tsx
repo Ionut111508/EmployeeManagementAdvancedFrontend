@@ -17,7 +17,7 @@ export function TaskDetailsPage() {
   const totalWorked = taskTimesheets.reduce((sum, item) => sum + item.workedHours, 0);
 
   return <section className="page-stack">
-    <PageHeader eyebrow="Task details" title={task?.taskName ?? 'Task details'} description="Informatii despre task, proiect, estimari, alocari si pontaj." />
+    <PageHeader eyebrow="Task details" title={task?.taskName ?? 'Task details'} description="Information about task, project, estimates, allocations, and timesheets." />
     <Link className="btn-link" to="/tasks">Back to tasks</Link>
     <Status loading={tasks.loading} error={tasks.error} empty={!task && !tasks.loading} />
     {task && <>

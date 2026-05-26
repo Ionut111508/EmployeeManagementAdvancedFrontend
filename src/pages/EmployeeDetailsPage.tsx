@@ -21,7 +21,7 @@ export function EmployeeDetailsPage() {
   const totalWorked = employeeTimesheets.reduce((sum, item) => sum + item.workedHours, 0);
 
   return <section className="page-stack">
-    <PageHeader eyebrow="Employee profile" title={employee ? `${employee.firstName} ${employee.lastName}` : 'Employee details'} description="Informatii despre angajat, skill-uri, departamente, alocari si pontaj." />
+    <PageHeader eyebrow="Employee profile" title={employee ? `${employee.firstName} ${employee.lastName}` : 'Employee details'} description="Information about the employee, skills, departments, allocations, and timesheets." />
     <Link className="btn-link" to="/employees">Back to employees</Link>
     <Status loading={employees.loading} error={employees.error} empty={!employee && !employees.loading} />
     {employee && <>
