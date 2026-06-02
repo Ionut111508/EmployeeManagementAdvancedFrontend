@@ -1,5 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { api } from '../api/endpoints';
+import { loadVisibleAllocations, loadVisibleTimesheets } from '../api/scoped';
+import { useAuth } from '../auth/AuthContext';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Status } from '../components/ui/Status';
 import { useAsync } from '../hooks/useAsync';
@@ -7,9 +9,19 @@ import { formatDate, formatNumber } from '../utils/format';
 
 export function TaskDetailsPage() {
   const { projectId, taskId } = useParams();
-  const tasks = useAsync(api.tasks, []);
-  const allocations = useAsync(api.allocations, []);
-  const timesheets = useAsync(api.timesheets, []);
+  const { session, access } = useAuth();
+  const tasks = useAsync(() => {
+    if (!session) throw new Error('Login is required.');
+    return api.tasksVisibleTo(session.employeeId);
+  }, [session?.employeeId]);
+  const allocations = useAsync(() => {
+    if (!session) throw new Error('Login is required.');
+    return loadVisibleAllocations(session, access);
+  }, [session?.employeeId, access?.managedProjectIds.join('|')]);
+  const timesheets = useAsync(() => {
+    if (!session) throw new Error('Login is required.');
+    return loadVisibleTimesheets(session, access);
+  }, [session?.employeeId, access?.managedProjectIds.join('|')]);
   const task = (tasks.data ?? []).find(t => t.projectId === projectId && t.taskId === taskId);
   const taskAllocations = (allocations.data ?? []).filter(a => a.projectId === projectId && a.taskId === taskId);
   const taskTimesheets = (timesheets.data ?? []).filter(t => t.projectId === projectId && t.taskId === taskId);

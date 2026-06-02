@@ -1,10 +1,15 @@
 import { FormEvent, useState } from 'react';
 import { api } from '../api/endpoints';
+import { useAuth } from '../auth/AuthContext';
 import { PageHeader } from '../components/ui/PageHeader';
 import { useAsync } from '../hooks/useAsync';
 
 export function CreateTaskPage() {
-  const projects = useAsync(api.projects, []);
+  const { session } = useAuth();
+  const projects = useAsync(() => {
+    if (!session) throw new Error('Login is required.');
+    return api.projectsVisibleTo(session.employeeId);
+  }, [session?.employeeId]);
   const [message, setMessage] = useState<string | null>(null);
   const [form, setForm] = useState({ projectId: '', taskId: '', taskName: '', estimatedHours: '40', descriptionId: '', taskDescriptionText: '' });
 

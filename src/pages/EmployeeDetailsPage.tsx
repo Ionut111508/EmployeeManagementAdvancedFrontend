@@ -1,5 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { api } from '../api/endpoints';
+import { loadVisibleAllocations, loadVisibleTimesheets } from '../api/scoped';
+import { useAuth } from '../auth/AuthContext';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Status } from '../components/ui/Status';
 import { useAsync } from '../hooks/useAsync';
@@ -7,9 +9,19 @@ import { formatDate, formatNumber } from '../utils/format';
 
 export function EmployeeDetailsPage() {
   const { employeeId } = useParams();
-  const employees = useAsync(api.employees, []);
-  const allocations = useAsync(api.allocations, []);
-  const timesheets = useAsync(api.timesheets, []);
+  const { session, access } = useAuth();
+  const employees = useAsync(() => {
+    if (!session) throw new Error('Login is required.');
+    return api.employeesVisibleTo(session.employeeId);
+  }, [session?.employeeId]);
+  const allocations = useAsync(() => {
+    if (!session) throw new Error('Login is required.');
+    return loadVisibleAllocations(session, access);
+  }, [session?.employeeId, access?.managedProjectIds.join('|')]);
+  const timesheets = useAsync(() => {
+    if (!session) throw new Error('Login is required.');
+    return loadVisibleTimesheets(session, access);
+  }, [session?.employeeId, access?.managedProjectIds.join('|')]);
   const skills = useAsync(api.employeeSkills, []);
   const departments = useAsync(api.employeeDepartments, []);
   const employee = (employees.data ?? []).find(e => e.employeeId === employeeId);
@@ -22,7 +34,7 @@ export function EmployeeDetailsPage() {
 
   return <section className="page-stack">
     <PageHeader eyebrow="Employee profile" title={employee ? `${employee.firstName} ${employee.lastName}` : 'Employee details'} description="Employee information, skills, departments, allocations, and timesheets." />
-    <Link className="btn-link" to="/employees">Back to employees</Link>
+    <Link className="btn-link" to={session?.role === 'Employee' ? '/' : '/employees'}>{session?.role === 'Employee' ? 'Back to dashboard' : 'Back to employees'}</Link>
     <Status loading={employees.loading} error={employees.error} empty={!employee && !employees.loading} />
     {employee && <>
       <div className="grid grid-3">

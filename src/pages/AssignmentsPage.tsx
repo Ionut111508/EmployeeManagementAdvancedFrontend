@@ -1,10 +1,15 @@
 import { FormEvent, useState } from 'react';
 import { api } from '../api/endpoints';
+import { useAuth } from '../auth/AuthContext';
 import { PageHeader } from '../components/ui/PageHeader';
 import { useAsync } from '../hooks/useAsync';
 
 export function AssignmentsPage() {
-  const employees = useAsync(api.employees, []);
+  const { session } = useAuth();
+  const employees = useAsync(() => {
+    if (!session) throw new Error('Login is required.');
+    return api.employeesVisibleTo(session.employeeId);
+  }, [session?.employeeId]);
   const skills = useAsync(api.skills, []);
   const departments = useAsync(api.departments, []);
   const [message, setMessage] = useState<string | null>(null);

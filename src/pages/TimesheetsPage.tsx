@@ -1,13 +1,25 @@
 import { api } from '../api/endpoints';
+import { loadVisibleTimesheets } from '../api/scoped';
+import { useAuth } from '../auth/AuthContext';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Status } from '../components/ui/Status';
 import { useAsync } from '../hooks/useAsync';
 import { formatDate, formatNumber } from '../utils/format';
 
 export function TimesheetsPage() {
-  const timesheets = useAsync(api.timesheets, []);
-  const employees = useAsync(api.employees, []);
-  const tasks = useAsync(api.tasks, []);
+  const { session, access } = useAuth();
+  const timesheets = useAsync(() => {
+    if (!session) throw new Error('Login is required.');
+    return loadVisibleTimesheets(session, access);
+  }, [session?.employeeId, access?.managedProjectIds.join('|')]);
+  const employees = useAsync(() => {
+    if (!session) throw new Error('Login is required.');
+    return api.employeesVisibleTo(session.employeeId);
+  }, [session?.employeeId]);
+  const tasks = useAsync(() => {
+    if (!session) throw new Error('Login is required.');
+    return api.tasksVisibleTo(session.employeeId);
+  }, [session?.employeeId]);
 
   return <section className="page-stack">
     <PageHeader eyebrow="Timesheets" title="Timesheets" description="Worked hours reported by employees on tasks." />

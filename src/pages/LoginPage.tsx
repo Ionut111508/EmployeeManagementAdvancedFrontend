@@ -18,8 +18,6 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     setLoading(true);
     try {
       const session = await api.login({ username, password });
-      localStorage.setItem('authToken', session.token);
-      localStorage.setItem('authSession', JSON.stringify(session));
       onLogin(session);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed.');

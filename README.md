@@ -1,42 +1,49 @@
 # EmployeeManagementAdvancedFrontend
 
-Frontend React pentru aplicația de management al proiectelor, angajaților, task-urilor, alocărilor și pontajului.
+React frontend for the Employee Management advanced project suite.
 
-## Stack tehnologic
+## Stack
 
 - React
 - TypeScript
 - Vite
 - React Router
 - Axios
-- CSS custom
+- Custom CSS
 
 ## Backend API
 
-Implicit, aplicația consumă backend-ul ASP.NET Core de la:
+By default, the app uses the ASP.NET Core backend at:
 
 ```text
 http://localhost:5000/api
 ```
 
-Poți modifica adresa în fișierul `.env`:
+You can override it in `.env`:
 
 ```text
 VITE_API_BASE_URL=http://localhost:5000/api
 ```
 
-## Funcționalități planificate
+## Main Features
 
-- Dashboard cu KPI-uri operaționale
-- Management proiecte și detalii proiect
-- Management angajați și resurse umane
-- Task-uri, alocări și pontaj
-- Gantt simplu pe baza alocărilor
-- UI pregătit pentru roluri: Admin, Manager, Angajat
+- Login/logout with persisted local session
+- Role-aware navigation for Admin, Manager, and Employee users
+- Scoped dashboards, projects, tasks, employees, allocations, and timesheets
+- Employee role overview
+- Allocation availability and simulation before creating assignments
+- Employee leaves, skills, departments, and project details
+- Gantt-style allocation view
 
-## Pornire locală
+## Local Development
 
 ```bash
 npm install
 npm run dev
+```
+
+## Build
+
+```bash
+npm run build
 ```

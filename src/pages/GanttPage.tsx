@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 import { api } from '../api/endpoints';
+import { loadVisibleAllocations } from '../api/scoped';
+import { useAuth } from '../auth/AuthContext';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Status } from '../components/ui/Status';
 import { useAsync } from '../hooks/useAsync';
@@ -9,15 +11,17 @@ const day = 1000 * 60 * 60 * 24;
 const today = new Date();
 
 export function GanttPage() {
+  const { session, access } = useAuth();
   const [projectFilter, setProjectFilter] = useState('all');
   const [employeeFilter, setEmployeeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
 
   const { data, loading, error } = useAsync(async () => {
-    const allocations = await api.allocations();
+    if (!session) throw new Error('Login is required.');
+    const allocations = await loadVisibleAllocations(session, access);
     const ranges = allocations.map(a => ({ ...a, start: new Date(a.allocationStartDate), end: new Date(a.allocationEndDate ?? a.allocationStartDate) }));
     return ranges;
-  }, []);
+  }, [session?.employeeId, access?.managedProjectIds.join('|')]);
 
   const projects = useMemo(() => Array.from(new Map((data ?? []).map(a => [a.projectId, a.projectName ?? a.projectId])).entries()), [data]);
   const employees = useMemo(() => Array.from(new Map((data ?? []).map(a => [a.employeeId, a.employeeName ?? a.employeeId])).entries()), [data]);

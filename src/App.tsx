@@ -1,5 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import type { ReactElement } from 'react';
 import { AppLayout } from './layouts/AppLayout';
+import { useAuth } from './auth/AuthContext';
 import { DashboardPage } from './pages/DashboardPage';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { ProjectDetailsPage } from './pages/ProjectDetailsPage';
@@ -18,29 +20,51 @@ import { AssignmentsPage } from './pages/AssignmentsPage';
 import { EmployeeLeavesPage } from './pages/EmployeeLeavesPage';
 import { GanttPage } from './pages/GanttPage';
 import { RolesPage } from './pages/RolesPage';
+import { LoginPage } from './pages/LoginPage';
+import type { Permission } from './types/domain';
+
+function AccessDenied() {
+  return <section className="page-stack">
+    <div className="status-card status-error">
+      <strong>Access denied</strong>
+      <p>You do not have permission to open this page.</p>
+    </div>
+  </section>;
+}
+
+function RequirePermission({ anyOf, children }: { anyOf: Permission[]; children: ReactElement }) {
+  const { hasAnyPermission } = useAuth();
+  return hasAnyPermission(anyOf) ? children : <AccessDenied />;
+}
 
 export default function App() {
+  const { isAuthenticated, login } = useAuth();
+
+  if (!isAuthenticated) {
+    return <LoginPage onLogin={login} />;
+  }
+
   return (
     <Routes>
       <Route element={<AppLayout />}>
         <Route index element={<DashboardPage />} />
-        <Route path="projects" element={<ProjectsPage />} />
-        <Route path="projects/:projectId" element={<ProjectDetailsPage />} />
-        <Route path="tasks" element={<TasksPage />} />
-        <Route path="tasks/create" element={<CreateTaskPage />} />
-        <Route path="task-view/:projectId/:taskId" element={<TaskDetailsPage />} />
-        <Route path="employees" element={<EmployeesPage />} />
+        <Route path="projects" element={<RequirePermission anyOf={['projects.view.all', 'projects.view.managed', 'projects.view.assigned']}><ProjectsPage /></RequirePermission>} />
+        <Route path="projects/:projectId" element={<RequirePermission anyOf={['projects.view.all', 'projects.view.managed', 'projects.view.assigned']}><ProjectDetailsPage /></RequirePermission>} />
+        <Route path="tasks" element={<RequirePermission anyOf={['tasks.view.all', 'tasks.view.managed', 'tasks.view.assigned']}><TasksPage /></RequirePermission>} />
+        <Route path="tasks/create" element={<RequirePermission anyOf={['tasks.manage', 'tasks.manage.managed']}><CreateTaskPage /></RequirePermission>} />
+        <Route path="task-view/:projectId/:taskId" element={<RequirePermission anyOf={['tasks.view.all', 'tasks.view.managed', 'tasks.view.assigned']}><TaskDetailsPage /></RequirePermission>} />
+        <Route path="employees" element={<RequirePermission anyOf={['employees.view.all', 'employees.view.available']}><EmployeesPage /></RequirePermission>} />
         <Route path="people/:employeeId" element={<EmployeeDetailsPage />} />
-        <Route path="employees/create" element={<CreateEmployeePage />} />
-        <Route path="roles" element={<RolesPage />} />
-        <Route path="allocations" element={<AllocationsPage />} />
-        <Route path="allocations/create" element={<CreateAllocationPage />} />
-        <Route path="timesheets" element={<TimesheetsPage />} />
-        <Route path="leaves" element={<EmployeeLeavesPage />} />
-        <Route path="departments" element={<DepartmentsPage />} />
-        <Route path="skills" element={<SkillsPage />} />
-        <Route path="assignments" element={<AssignmentsPage />} />
-        <Route path="gantt" element={<GanttPage />} />
+        <Route path="employees/create" element={<RequirePermission anyOf={['employees.manage']}><CreateEmployeePage /></RequirePermission>} />
+        <Route path="roles" element={<RequirePermission anyOf={['roles.manage']}><RolesPage /></RequirePermission>} />
+        <Route path="allocations" element={<RequirePermission anyOf={['allocations.view.all', 'allocations.view.managed', 'allocations.view.own']}><AllocationsPage /></RequirePermission>} />
+        <Route path="allocations/create" element={<RequirePermission anyOf={['allocations.manage', 'allocations.manage.managed']}><CreateAllocationPage /></RequirePermission>} />
+        <Route path="timesheets" element={<RequirePermission anyOf={['timesheets.view.all', 'timesheets.view.team', 'timesheets.manage.own']}><TimesheetsPage /></RequirePermission>} />
+        <Route path="leaves" element={<RequirePermission anyOf={['leaves.manage', 'leaves.view.team', 'leaves.request']}><EmployeeLeavesPage /></RequirePermission>} />
+        <Route path="departments" element={<RequirePermission anyOf={['employees.view.all', 'employees.view.available']}><DepartmentsPage /></RequirePermission>} />
+        <Route path="skills" element={<RequirePermission anyOf={['employees.view.all', 'employees.view.available']}><SkillsPage /></RequirePermission>} />
+        <Route path="assignments" element={<RequirePermission anyOf={['employees.manage']}><AssignmentsPage /></RequirePermission>} />
+        <Route path="gantt" element={<RequirePermission anyOf={['allocations.view.all', 'allocations.view.managed', 'allocations.view.own']}><GanttPage /></RequirePermission>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

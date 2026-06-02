@@ -1,6 +1,8 @@
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, CheckSquare, Clock3, Network } from 'lucide-react';
 import { api } from '../api/endpoints';
+import { loadVisibleAllocations, loadVisibleTimesheets } from '../api/scoped';
+import { useAuth } from '../auth/AuthContext';
 import { KpiCard } from '../components/ui/KpiCard';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Status } from '../components/ui/Status';
@@ -9,11 +11,16 @@ import { formatDate, formatNumber, percent } from '../utils/format';
 
 export function ProjectDetailsPage() {
   const { projectId } = useParams<{ projectId: string }>();
+  const { session, access } = useAuth();
 
   const { data, loading, error } = useAsync(async () => {
     if (!projectId) throw new Error('Project id missing.');
+    if (!session) throw new Error('Login is required.');
     const [project, tasks, allocations, timesheets] = await Promise.all([
-      api.projectById(projectId), api.tasks(), api.allocations(), api.timesheets()
+      api.projectById(projectId),
+      api.tasksVisibleTo(session.employeeId),
+      loadVisibleAllocations(session, access),
+      loadVisibleTimesheets(session, access)
     ]);
     const projectTasks = tasks.filter(t => t.projectId === projectId);
     const projectAllocations = allocations.filter(a => a.projectId === projectId);
@@ -22,7 +29,7 @@ export function ProjectDetailsPage() {
     const workedHours = projectTimesheets.reduce((sum, sheet) => sum + sheet.workedHours, 0);
     const progress = estimatedHours > 0 ? Math.min(100, Math.round((workedHours / estimatedHours) * 100)) : 0;
     return { project, projectTasks, projectAllocations, estimatedHours, workedHours, progress };
-  }, [projectId]);
+  }, [projectId, session?.employeeId, access?.managedProjectIds.join('|')]);
 
   return <section className="page-stack">
     <PageHeader eyebrow="Project details" title={data?.project.projectName ?? 'Project'} description="Project details, tasks, allocations, and progress calculated from timesheets." actions={<Link className="btn secondary" to="/projects"><ArrowLeft size={16}/> Back</Link>} />

@@ -1,12 +1,17 @@
 import { FormEvent, useState } from 'react';
 import { api } from '../api/endpoints';
+import { useAuth } from '../auth/AuthContext';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Status } from '../components/ui/Status';
 import { useAsync } from '../hooks/useAsync';
 import { formatDate } from '../utils/format';
 
 export function EmployeeLeavesPage() {
-  const employees = useAsync(api.employees, []);
+  const { session } = useAuth();
+  const employees = useAsync(() => {
+    if (!session) throw new Error('Login is required.');
+    return api.employeesVisibleTo(session.employeeId);
+  }, [session?.employeeId]);
   const leaves = useAsync(api.employeeLeaves, []);
   const [message, setMessage] = useState<string | null>(null);
   const [form, setForm] = useState({ employeeId: '', startDate: new Date().toISOString().slice(0, 10), endDate: new Date().toISOString().slice(0, 10), leaveType: 'Vacation', reason: '', replacementEmployeeId: '' });
@@ -20,6 +25,9 @@ export function EmployeeLeavesPage() {
     } catch (err) { setMessage(err instanceof Error ? err.message : 'Could not register leave.'); }
   }
 
+  const visibleEmployeeIds = new Set((employees.data ?? []).map(e => e.employeeId));
+  const visibleLeaves = (leaves.data ?? []).filter(leave => session?.role === 'Admin' || visibleEmployeeIds.has(leave.employeeId) || (leave.replacementEmployeeId ? visibleEmployeeIds.has(leave.replacementEmployeeId) : false));
+
   return <section className="page-stack">
     <PageHeader eyebrow="Availability" title="Employee leaves" description="Manage employee leaves. If no replacement is available, the task must be replanned or delayed." />
     <form className="card form-grid" onSubmit={saveLeave}>
@@ -32,7 +40,7 @@ export function EmployeeLeavesPage() {
       <button className="btn">Register leave</button>
       {message && <p className="muted form-message">{message}</p>}
     </form>
-    <Status loading={leaves.loading} error={leaves.error} empty={leaves.data?.length === 0} />
-    {leaves.data && <div className="table-card"><table className="data-table"><thead><tr><th>Employee</th><th>Period</th><th>Type</th><th>Replacement</th><th>Status</th></tr></thead><tbody>{leaves.data.map(l => <tr key={l.employeeLeaveId}><td>{l.employeeName}</td><td>{formatDate(l.startDate)} - {formatDate(l.endDate)}</td><td>{l.leaveType}</td><td>{l.replacementEmployeeName ?? '-'}</td><td><span className="badge">{l.replacementEmployeeId ? 'Covered' : 'Risk of delay'}</span></td></tr>)}</tbody></table></div>}
+    <Status loading={leaves.loading} error={leaves.error} empty={visibleLeaves.length === 0} />
+    {leaves.data && <div className="table-card"><table className="data-table"><thead><tr><th>Employee</th><th>Period</th><th>Type</th><th>Replacement</th><th>Status</th></tr></thead><tbody>{visibleLeaves.map(l => <tr key={l.employeeLeaveId}><td>{l.employeeName}</td><td>{formatDate(l.startDate)} - {formatDate(l.endDate)}</td><td>{l.leaveType}</td><td>{l.replacementEmployeeName ?? '-'}</td><td><span className="badge">{l.replacementEmployeeId ? 'Covered' : 'Risk of delay'}</span></td></tr>)}</tbody></table></div>}
   </section>;
 }
