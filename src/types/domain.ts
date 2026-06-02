@@ -43,9 +43,9 @@ export interface EmployeeRole { employeeId: string; fullName: string; username: 
 export interface Project { projectId: string; projectName: string; }
 export interface TaskDescription { descriptionId: string; taskDescriptionText?: string | null; }
 export interface TaskDescriptionCreate { descriptionId: string; taskDescriptionText: string; }
-export interface TaskItem { projectId: string; taskId: string; taskName: string; estimatedHours?: number | null; descriptionId?: string | null; project?: Project | null; description?: TaskDescription | null; }
-export interface TaskCreate { projectId: string; taskId: string; taskName: string; estimatedHours: number; descriptionId: string; }
-export interface Allocation { employeeId: string; projectId: string; taskId: string; employeeName?: string | null; projectName?: string | null; taskName?: string | null; allocationStartDate: string; allocationEndDate?: string | null; allocatedHours: number; totalAllocationHours?: number | null; employee?: Employee | null; taskItem?: TaskItem | null; }
+export interface TaskItem { projectId: string; taskId: string; taskName: string; estimatedHours?: number | null; descriptionId?: string | null; requiredSkillId?: string | null; project?: Project | null; description?: TaskDescription | null; requiredSkill?: Skill | null; }
+export interface TaskCreate { projectId: string; taskId: string; taskName: string; estimatedHours: number; descriptionId: string; requiredSkillId?: string | null; }
+export interface Allocation { employeeId: string; projectId: string; taskId: string; employeeName?: string | null; projectName?: string | null; taskName?: string | null; requiredSkillId?: string | null; requiredSkillName?: string | null; requiredSkillLevel?: string | null; allocationStartDate: string; allocationEndDate?: string | null; allocatedHours: number; totalAllocationHours?: number | null; employee?: Employee | null; taskItem?: TaskItem | null; }
 export interface AllocationCreate { employeeId: string; projectId: string; taskId: string; allocationStartDate: string; allocationEndDate?: string | null; allocatedHours: number; }
 export interface AutoAllocationCreate { projectId: string; taskId: string; startDate: string; endDate?: string | null; hoursPerDay: number; skillId?: string | null; }
 export interface AllocationAvailabilityRequest { projectId?: string | null; employeeId?: string | null; skillId?: string | null; startDate: string; endDate?: string | null; requiredHoursPerDay?: number | null; onlyProjectEmployees?: boolean; }
@@ -62,6 +62,13 @@ export interface AllocationAvailability {
   availableHours: number;
   minimumDailyAvailableHours: number;
   isOnLeave: boolean;
+  meetsSkillRequirement: boolean;
+  requiredSkillId?: string | null;
+  requiredSkillName?: string | null;
+  requiredSkillLevel?: string | null;
+  matchedSkillId?: string | null;
+  matchedSkillName?: string | null;
+  matchedSkillLevel?: string | null;
   canTakeRequestedHours: boolean;
   status: string;
 }
@@ -77,8 +84,25 @@ export interface AllocationSimulation {
   currentTaskAllocatedHours: number;
   taskEstimatedHours: number;
   taskRemainingHoursAfterSimulation: number;
+  requiredSkillId?: string | null;
+  requiredSkillName?: string | null;
+  requiredSkillLevel?: string | null;
   canAllocate: boolean;
   reasons: string[];
+  candidates: AllocationAvailability[];
+}
+export interface TaskStaffing {
+  projectId: string;
+  projectName: string;
+  taskId: string;
+  taskName: string;
+  estimatedHours: number;
+  allocatedHours: number;
+  remainingHours: number;
+  requiredSkillId?: string | null;
+  requiredSkillName?: string | null;
+  requiredSkillLevel?: string | null;
+  status: string;
   candidates: AllocationAvailability[];
 }
 export interface Timesheet { projectId: string; taskId: string; employeeId: string; workDate: string; workedHours: number; employee?: Employee | null; taskItem?: TaskItem | null; }
@@ -89,4 +113,26 @@ export interface EmployeeDepartment { employeeId: string; departmentId: string; 
 export interface EmployeeDepartmentCreate { employeeId: string; departmentId: string; startDate: string; endDate?: string | null; }
 export interface EmployeeLeave { employeeLeaveId: string; employeeId: string; employeeName: string; startDate: string; endDate: string; leaveType: string; reason?: string | null; replacementEmployeeId?: string | null; replacementEmployeeName?: string | null; }
 export interface EmployeeLeaveCreate { employeeId: string; startDate: string; endDate: string; leaveType: string; reason?: string | null; replacementEmployeeId?: string | null; }
+export interface EmployeeLeaveImpact {
+  projectId: string;
+  projectName: string;
+  taskId: string;
+  taskName: string;
+  allocationStartDate: string;
+  allocationEndDate?: string | null;
+  overlapStartDate: string;
+  overlapEndDate: string;
+  allocatedHours: number;
+  requiredSkillId?: string | null;
+  requiredSkillName?: string | null;
+  requiredSkillLevel?: string | null;
+  status: string;
+  replacementCandidates: AllocationAvailability[];
+}
+export interface EmployeeLeavePlan {
+  leave: EmployeeLeave;
+  hasDelayRisk: boolean;
+  recommendation: string;
+  impacts: EmployeeLeaveImpact[];
+}
 export interface ProjectSummary { projectId: string; projectName: string; tasksCount: number; estimatedHours: number; workedHours: number; progressPercent: number; }

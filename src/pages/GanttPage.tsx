@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { api } from '../api/endpoints';
 import { loadVisibleAllocations } from '../api/scoped';
 import { useAuth } from '../auth/AuthContext';
 import { PageHeader } from '../components/ui/PageHeader';
@@ -10,6 +9,14 @@ import { formatDate, formatNumber } from '../utils/format';
 const day = 1000 * 60 * 60 * 24;
 const today = new Date();
 
+function workingDays(start: Date, end: Date) {
+  let count = 0;
+  for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
+    if (date.getDay() !== 0 && date.getDay() !== 6) count += 1;
+  }
+  return count;
+}
+
 export function GanttPage() {
   const { session, access } = useAuth();
   const [projectFilter, setProjectFilter] = useState('all');
@@ -19,8 +26,7 @@ export function GanttPage() {
   const { data, loading, error } = useAsync(async () => {
     if (!session) throw new Error('Login is required.');
     const allocations = await loadVisibleAllocations(session, access);
-    const ranges = allocations.map(a => ({ ...a, start: new Date(a.allocationStartDate), end: new Date(a.allocationEndDate ?? a.allocationStartDate) }));
-    return ranges;
+    return allocations.map(a => ({ ...a, start: new Date(a.allocationStartDate), end: new Date(a.allocationEndDate ?? a.allocationStartDate) }));
   }, [session?.employeeId, access?.managedProjectIds.join('|')]);
 
   const projects = useMemo(() => Array.from(new Map((data ?? []).map(a => [a.projectId, a.projectName ?? a.projectId])).entries()), [data]);
@@ -50,9 +56,11 @@ export function GanttPage() {
         {filtered.map(item => {
           const left = Math.max(0, ((item.start.getTime() - min.getTime()) / day) / totalDays * 100);
           const width = Math.max(4, (((item.end.getTime() - item.start.getTime()) / day) + 1) / totalDays * 100);
+          const status = item.end < today ? 'Closed' : item.start > today ? 'Future' : 'Active';
+          const totalHours = workingDays(item.start, item.end) * item.allocatedHours;
           return <div className="gantt-row" key={`${item.employeeId}-${item.projectId}-${item.taskId}`}>
-            <div className="gantt-label"><strong>{item.taskName ?? item.taskId}</strong><span>{item.employeeName ?? item.employeeId} · {item.projectName ?? item.projectId} · {formatNumber(item.allocatedHours)}h/day</span></div>
-            <div className="gantt-track"><div className="gantt-bar" style={{ left: `${left}%`, width: `${width}%` }}>{formatDate(item.allocationStartDate)}</div></div>
+            <div className="gantt-label"><strong>{item.taskName ?? item.taskId}</strong><span>{item.employeeName ?? item.employeeId} | {item.projectName ?? item.projectId} | {formatNumber(item.allocatedHours)}h/day | {formatNumber(totalHours)}h total</span><span>{status} | Skill: {item.requiredSkillName ? `${item.requiredSkillName} ${item.requiredSkillLevel ?? ''}` : 'not set'}</span></div>
+            <div className="gantt-track"><div className="gantt-bar" style={{ left: `${left}%`, width: `${width}%` }}>{formatDate(item.allocationStartDate)} - {formatDate(item.allocationEndDate)}</div></div>
           </div>;
         })}
       </div>

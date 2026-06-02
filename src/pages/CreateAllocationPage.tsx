@@ -81,7 +81,10 @@ export function CreateAllocationPage() {
       <input className="field" type="date" value={form.startDate} onChange={e => setForm({ ...form, startDate: e.target.value })} required />
       <input className="field" type="date" value={form.endDate} onChange={e => setForm({ ...form, endDate: e.target.value })} />
       <input className="field" type="number" min="1" max="12" value={form.hoursPerDay} onChange={e => setForm({ ...form, hoursPerDay: e.target.value })} required />
-      {automatic && <select className="field" value={form.skillId} onChange={e => setForm({ ...form, skillId: e.target.value })}><option value="">Any skill</option>{(skills.data ?? []).map(s => <option key={s.skillId} value={s.skillId}>{s.skillName}</option>)}</select>}
+      <select className="field" value={form.skillId} onChange={e => setForm({ ...form, skillId: e.target.value })}>
+        <option value="">{selectedTask?.requiredSkill ? `Use task skill: ${selectedTask.requiredSkill.skillName} ${selectedTask.requiredSkill.skillLevel ?? ''}` : 'Any skill'}</option>
+        {(skills.data ?? []).map(s => <option key={s.skillId} value={s.skillId}>{s.skillName} {s.skillLevel ? `- ${s.skillLevel}` : ''}</option>)}
+      </select>
       <button className="btn secondary" type="button" disabled={planningLoading || !hasPermission('allocations.simulate')} onClick={simulate}>{planningLoading ? 'Simulating...' : 'Simulate availability'}</button>
       <button className="btn">Save allocation</button>
       {message && <p className="muted form-message">{message}</p>}
@@ -91,6 +94,7 @@ export function CreateAllocationPage() {
       <h2>Selected task</h2>
       <p><strong>{selectedTask.taskName}</strong> <span className="muted">{selectedTask.project?.projectName ?? selectedTask.projectId}</span></p>
       <span className="badge">Estimated {formatNumber(selectedTask.estimatedHours)}h</span>
+      <span className="badge">Required skill: {selectedTask.requiredSkill ? `${selectedTask.requiredSkill.skillName} ${selectedTask.requiredSkill.skillLevel ?? ''}` : 'None'}</span>
     </div>}
 
     {simulation && <div className="table-card">
@@ -103,8 +107,8 @@ export function CreateAllocationPage() {
       </div>
       {simulation.reasons.length > 0 && <div className="status-card status-error">{simulation.reasons.map(reason => <p key={reason}>{reason}</p>)}</div>}
       <table className="data-table">
-        <thead><tr><th>Candidate</th><th>Status</th><th>Available</th><th>Min daily available</th><th>Project role</th></tr></thead>
-        <tbody>{simulation.candidates.map(candidate => <tr key={candidate.employeeId}><td><strong>{candidate.fullName}</strong></td><td><span className="badge">{candidate.status}</span></td><td>{formatNumber(candidate.availableHours)}h</td><td>{formatNumber(candidate.minimumDailyAvailableHours)}h/day</td><td>{candidate.isProjectManager ? 'Manager' : candidate.isAssignedToProject ? 'Assigned' : 'Available pool'}</td></tr>)}</tbody>
+        <thead><tr><th>Candidate</th><th>Status</th><th>Skill match</th><th>Available</th><th>Min daily available</th><th>Project role</th></tr></thead>
+        <tbody>{simulation.candidates.map(candidate => <tr key={candidate.employeeId}><td><strong>{candidate.fullName}</strong></td><td><span className="badge">{candidate.status}</span></td><td>{candidate.matchedSkillName ? `${candidate.matchedSkillName} ${candidate.matchedSkillLevel ?? ''}` : candidate.requiredSkillName ? 'Missing' : 'Not required'}</td><td>{formatNumber(candidate.availableHours)}h</td><td>{formatNumber(candidate.minimumDailyAvailableHours)}h/day</td><td>{candidate.isProjectManager ? 'Manager' : candidate.isAssignedToProject ? 'Assigned' : 'Available pool'}</td></tr>)}</tbody>
       </table>
       {simulation.candidates.length === 0 && <p className="muted">No available candidates for this interval.</p>}
     </div>}

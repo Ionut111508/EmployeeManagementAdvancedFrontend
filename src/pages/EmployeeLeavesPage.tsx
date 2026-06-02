@@ -4,7 +4,7 @@ import { useAuth } from '../auth/AuthContext';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Status } from '../components/ui/Status';
 import { useAsync } from '../hooks/useAsync';
-import { formatDate } from '../utils/format';
+import { formatDate, formatNumber } from '../utils/format';
 
 export function EmployeeLeavesPage() {
   const { session } = useAuth();
@@ -14,7 +14,9 @@ export function EmployeeLeavesPage() {
   }, [session?.employeeId]);
   const leaves = useAsync(api.employeeLeaves, []);
   const [message, setMessage] = useState<string | null>(null);
+  const [selectedLeaveId, setSelectedLeaveId] = useState('');
   const [form, setForm] = useState({ employeeId: '', startDate: new Date().toISOString().slice(0, 10), endDate: new Date().toISOString().slice(0, 10), leaveType: 'Vacation', reason: '', replacementEmployeeId: '' });
+  const plan = useAsync(() => selectedLeaveId ? api.employeeLeavePlan(selectedLeaveId) : Promise.resolve(null), [selectedLeaveId]);
 
   async function saveLeave(event: FormEvent) {
     event.preventDefault();
@@ -41,6 +43,11 @@ export function EmployeeLeavesPage() {
       {message && <p className="muted form-message">{message}</p>}
     </form>
     <Status loading={leaves.loading} error={leaves.error} empty={visibleLeaves.length === 0} />
-    {leaves.data && <div className="table-card"><table className="data-table"><thead><tr><th>Employee</th><th>Period</th><th>Type</th><th>Replacement</th><th>Status</th></tr></thead><tbody>{visibleLeaves.map(l => <tr key={l.employeeLeaveId}><td>{l.employeeName}</td><td>{formatDate(l.startDate)} - {formatDate(l.endDate)}</td><td>{l.leaveType}</td><td>{l.replacementEmployeeName ?? '-'}</td><td><span className="badge">{l.replacementEmployeeId ? 'Covered' : 'Risk of delay'}</span></td></tr>)}</tbody></table></div>}
+    {leaves.data && <div className="table-card"><table className="data-table"><thead><tr><th>Employee</th><th>Period</th><th>Type</th><th>Replacement</th><th>Status</th><th>Plan</th></tr></thead><tbody>{visibleLeaves.map(l => <tr key={l.employeeLeaveId}><td>{l.employeeName}</td><td>{formatDate(l.startDate)} - {formatDate(l.endDate)}</td><td>{l.leaveType}</td><td>{l.replacementEmployeeName ?? '-'}</td><td><span className="badge">{l.replacementEmployeeId ? 'Covered' : 'Risk of delay'}</span></td><td><button className="btn secondary" type="button" onClick={() => setSelectedLeaveId(l.employeeLeaveId)}>Analyze</button></td></tr>)}</tbody></table></div>}
+    <div className="table-card">
+      <div className="gantt-header"><h2>Leave impact plan</h2><select className="field" value={selectedLeaveId} onChange={e => setSelectedLeaveId(e.target.value)}><option value="">Select leave</option>{visibleLeaves.map(l => <option key={l.employeeLeaveId} value={l.employeeLeaveId}>{l.employeeName} | {formatDate(l.startDate)} - {formatDate(l.endDate)}</option>)}</select></div>
+      <Status loading={Boolean(selectedLeaveId) && plan.loading} error={plan.error} empty={Boolean(selectedLeaveId) && plan.data?.impacts.length === 0} />
+      {plan.data && <><p className="muted">{plan.data.recommendation}</p><table className="data-table"><thead><tr><th>Impacted task</th><th>Overlap</th><th>Hours/day</th><th>Skill</th><th>Candidates</th><th>Status</th></tr></thead><tbody>{plan.data.impacts.map(item => <tr key={`${item.projectId}-${item.taskId}-${item.overlapStartDate}`}><td><strong>{item.taskName}</strong><br/><span className="muted">{item.projectName}</span></td><td>{formatDate(item.overlapStartDate)} - {formatDate(item.overlapEndDate)}</td><td>{formatNumber(item.allocatedHours)}h</td><td>{item.requiredSkillName ? `${item.requiredSkillName} ${item.requiredSkillLevel ?? ''}` : '-'}</td><td>{item.replacementCandidates.length ? item.replacementCandidates.map(candidate => `${candidate.fullName} (${formatNumber(candidate.minimumDailyAvailableHours)}h/day)`).join(', ') : '-'}</td><td><span className="badge">{item.status}</span></td></tr>)}</tbody></table></>}
+    </div>
   </section>;
 }

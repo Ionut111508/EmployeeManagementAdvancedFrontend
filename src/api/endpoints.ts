@@ -1,5 +1,5 @@
 import { http } from './http';
-import type { Account, AccountCreate, Allocation, AllocationAvailability, AllocationAvailabilityRequest, AllocationCreate, AllocationSimulation, AllocationSimulationRequest, AutoAllocationCreate, Department, Employee, EmployeeCreate, EmployeeDepartment, EmployeeDepartmentCreate, EmployeeLeave, EmployeeLeaveCreate, EmployeeRole, EmployeeSkill, EmployeeSkillCreate, LoginRequest, LoginResponse, Project, ProjectSummary, Skill, TaskComment, TaskCreate, TaskDescription, TaskDescriptionCreate, TaskItem, Timesheet, UserAccess, WorkNorm } from '../types/domain';
+import type { Account, AccountCreate, Allocation, AllocationAvailability, AllocationAvailabilityRequest, AllocationCreate, AllocationSimulation, AllocationSimulationRequest, AutoAllocationCreate, Department, Employee, EmployeeCreate, EmployeeDepartment, EmployeeDepartmentCreate, EmployeeLeave, EmployeeLeaveCreate, EmployeeLeavePlan, EmployeeRole, EmployeeSkill, EmployeeSkillCreate, LoginRequest, LoginResponse, Project, ProjectSummary, Skill, TaskComment, TaskCreate, TaskDescription, TaskDescriptionCreate, TaskItem, TaskStaffing, Timesheet, UserAccess, WorkNorm } from '../types/domain';
 
 export const api = {
   login: (payload: LoginRequest) => http.post<LoginResponse>('/Auth/login', payload).then(r => r.data),
@@ -19,6 +19,7 @@ export const api = {
 
   tasks: () => http.get<TaskItem[]>('/Tasks').then(r => r.data),
   tasksVisibleTo: (employeeId: string) => http.get<TaskItem[]>(`/Tasks/visible-to/${employeeId}`).then(r => r.data),
+  taskStaffing: (params: { startDate: string; endDate?: string | null; projectId?: string | null; hoursPerDay?: number }) => http.get<TaskStaffing[]>('/Tasks/staffing', { params }).then(r => r.data),
   createTask: (payload: TaskCreate) => http.post<TaskItem>('/Tasks', payload).then(r => r.data),
 
   descriptions: () => http.get<TaskDescription[]>('/Descriptions').then(r => r.data),
@@ -29,6 +30,7 @@ export const api = {
   allocationsByProject: (projectId: string) => http.get<Allocation[]>(`/Allocations/project/${projectId}`).then(r => r.data),
   allocationsByTask: (projectId: string, taskId: string) => http.get<Allocation[]>(`/Allocations/task/${projectId}/${taskId}`).then(r => r.data),
   allocationAvailability: (params: AllocationAvailabilityRequest) => http.get<AllocationAvailability[]>('/Allocations/availability', { params }).then(r => r.data),
+  underutilizedEmployees: (params: AllocationAvailabilityRequest) => http.get<AllocationAvailability[]>('/Allocations/underutilized', { params }).then(r => r.data),
   simulateAllocation: (payload: AllocationSimulationRequest) => http.post<AllocationSimulation>('/Allocations/simulate', payload).then(r => r.data),
   createAllocation: (payload: AllocationCreate) => http.post<Allocation>('/Allocations', payload).then(r => r.data),
   createAutoAllocation: (payload: AutoAllocationCreate) => http.post<Allocation>('/Allocations/auto', payload).then(r => r.data),
@@ -44,6 +46,7 @@ export const api = {
   createEmployeeSkill: (payload: EmployeeSkillCreate) => http.post<EmployeeSkill>('/EmployeeSkills', payload).then(r => r.data),
   employeeLeaves: () => http.get<EmployeeLeave[]>('/EmployeeLeaves').then(r => r.data),
   createEmployeeLeave: (payload: EmployeeLeaveCreate) => http.post('/EmployeeLeaves', payload).then(r => r.data),
+  employeeLeavePlan: (leaveId: string) => http.get<EmployeeLeavePlan>(`/EmployeeLeaves/${leaveId}/plan`).then(r => r.data),
   workNorms: () => http.get<WorkNorm[]>('/WorkNorms').then(r => r.data),
   taskComments: () => http.get<TaskComment[]>('/TaskComments').then(r => r.data),
   projectSummary: (projectId: string) => http.get<ProjectSummary>(`/Dashboard/project/${projectId}/summary`).then(r => r.data)
