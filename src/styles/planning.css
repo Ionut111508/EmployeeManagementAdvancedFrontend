@@ -1,0 +1,48 @@
+.field-span {
+  grid-column: 1 / -1;
+  min-height: 96px;
+  resize: vertical;
+}
+
+.compact-field {
+  width: 100px;
+}
+
+.submit-plan {
+  align-self: flex-start;
+}
+
+.capacity-sections {
+  display: grid;
+  gap: 28px;
+  margin-top: 24px;
+}
+
+.capacity-sections section + section {
+  padding-top: 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.section-heading h3,
+.section-heading p {
+  margin-bottom: 4px;
+}
+
+.table-card {
+  overflow-x: auto;
+}
+
+@media (max-width: 720px) {
+  .submit-plan {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,0 +1,144 @@
+.card,
+.table-card,
+.status-card,
+.kpi-card {
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, .05);
+}
+
+.brand-mark,
+.side-nav a,
+.role-chip,
+.badge,
+.btn,
+.btn-link,
+.field,
+.kpi-icon,
+.simulation-kpis div {
+  border-radius: 7px;
+}
+
+.btn,
+.btn-link {
+  min-height: 40px;
+}
+
+.btn:focus-visible,
+.btn-link:focus-visible,
+.field:focus-visible,
+.side-nav a:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, .25);
+  outline-offset: 2px;
+}
+
+.field:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
+  outline: 0;
+}
+
+.page-description {
+  max-width: 720px;
+  line-height: 1.55;
+}
+
+.status-success {
+  display: grid;
+  gap: 4px;
+  color: #166534;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.status-success span {
+  color: #4d7c5b;
+  font-size: .9rem;
+}
+
+.data-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.dashboard-metric {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 22px;
+  padding-top: 18px;
+  color: #2563eb;
+  border-top: 1px solid #e2e8f0;
+}
+
+.dashboard-metric strong,
+.dashboard-metric span {
+  display: block;
+}
+
+.dashboard-metric strong {
+  color: #172033;
+  font-size: 1.7rem;
+}
+
+.dashboard-metric span {
+  margin-top: 3px;
+  color: #64748b;
+  font-size: .85rem;
+}
+
+.sidebar {
+  overflow-y: auto;
+}
+
+@media (max-width: 1000px) {
+  .sidebar {
+    gap: 18px;
+    padding: 18px;
+  }
+
+  .side-nav {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .side-nav a {
+    flex: 0 0 auto;
+  }
+
+  .app-main {
+    padding: 24px 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-header,
+  .gantt-header,
+  .section-heading {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .topbar-actions,
+  .session-summary {
+    width: 100%;
+  }
+
+  .topbar-actions {
+    align-items: center;
+  }
+
+  .session-summary {
+    min-width: 0;
+  }
+
+  .filter-bar > .field,
+  .filter-bar > label {
+    width: 100%;
+  }
+
+  .filter-bar > label .field {
+    width: 100%;
+    margin-top: 5px;
+  }
+}

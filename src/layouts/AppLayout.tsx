@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import type { ElementType } from 'react';
-import { BarChart3, BriefcaseBusiness, CheckSquare, Clock3, Gauge, Layers3, Link2, LogOut, Network, ShieldCheck, Users, Wrench } from 'lucide-react';
+import { BarChart3, BriefcaseBusiness, CheckSquare, Clock3, Gauge, Layers3, Link2, LogOut, Network, ShieldCheck, UserCog, Users, Wrench } from 'lucide-react';
 import { API_BASE_URL } from '../api/http';
 import { useAuth } from '../auth/AuthContext';
 import type { Permission } from '../types/domain';
@@ -10,6 +10,7 @@ const navItems = [
   { to: '/projects', label: 'Projects', icon: BriefcaseBusiness, permissions: ['projects.view.all', 'projects.view.managed', 'projects.view.assigned'] },
   { to: '/tasks', label: 'Tasks', icon: CheckSquare, permissions: ['tasks.view.all', 'tasks.view.managed', 'tasks.view.assigned'] },
   { to: '/employees', label: 'Employees', icon: Users, permissions: ['employees.view.all', 'employees.view.available'] },
+  { to: '/accounts', label: 'Accounts', icon: UserCog, permissions: ['accounts.manage'] },
   { to: '/roles', label: 'Roles', icon: ShieldCheck, permissions: ['roles.manage'] },
   { to: '/allocations', label: 'Allocations', icon: Network, permissions: ['allocations.view.all', 'allocations.view.managed', 'allocations.view.own'] },
   { to: '/assignments', label: 'Assignments', icon: Link2, permissions: ['employees.manage'] },

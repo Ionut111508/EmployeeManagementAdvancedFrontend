@@ -3,6 +3,7 @@ import { api } from '../api/endpoints';
 import { useAuth } from '../auth/AuthContext';
 import { PageHeader } from '../components/ui/PageHeader';
 import { useAsync } from '../hooks/useAsync';
+import { dateInputValue } from '../utils/format';
 
 export function AssignmentsPage() {
   const { session } = useAuth();
@@ -13,8 +14,8 @@ export function AssignmentsPage() {
   const skills = useAsync(api.skills, []);
   const departments = useAsync(api.departments, []);
   const [message, setMessage] = useState<string | null>(null);
-  const [skillForm, setSkillForm] = useState({ employeeId: '', skillId: '', acquiredDate: new Date().toISOString().slice(0, 10) });
-  const [departmentForm, setDepartmentForm] = useState({ employeeId: '', departmentId: '', startDate: new Date().toISOString().slice(0, 10), endDate: '' });
+  const [skillForm, setSkillForm] = useState({ employeeId: '', skillId: '', acquiredDate: dateInputValue() });
+  const [departmentForm, setDepartmentForm] = useState({ employeeId: '', departmentId: '', startDate: dateInputValue(), endDate: '' });
 
   async function assignSkill(event: FormEvent) {
     event.preventDefault();

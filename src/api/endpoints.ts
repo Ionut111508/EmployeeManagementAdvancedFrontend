@@ -1,5 +1,5 @@
 import { http } from './http';
-import type { Account, AccountCreate, Allocation, AllocationAvailability, AllocationAvailabilityRequest, AllocationCreate, AllocationSimulation, AllocationSimulationRequest, AutoAllocationCreate, Department, Employee, EmployeeCreate, EmployeeDepartment, EmployeeDepartmentCreate, EmployeeLeave, EmployeeLeaveCreate, EmployeeLeavePlan, EmployeeRole, EmployeeSkill, EmployeeSkillCreate, LoginRequest, LoginResponse, Project, ProjectSummary, Skill, TaskComment, TaskCreate, TaskDescription, TaskDescriptionCreate, TaskItem, TaskStaffing, Timesheet, UserAccess, WorkNorm } from '../types/domain';
+import type { Account, AccountCreate, AccountUpdate, Allocation, AllocationAvailability, AllocationAvailabilityRequest, AllocationCreate, AllocationSimulation, AllocationSimulationRequest, AutoAllocationCreate, AutoAllocationResult, CreatePlannedTaskRequest, CreatePlannedTaskResponse, Department, Employee, EmployeeCreate, EmployeeDepartment, EmployeeDepartmentCreate, EmployeeLeave, EmployeeLeaveCreate, EmployeeLeavePlan, EmployeeRole, EmployeeSkill, EmployeeSkillCreate, LoginRequest, LoginResponse, Project, ProjectSummary, ResourcePlanningOverview, Skill, TaskComment, TaskCreate, TaskDescription, TaskDescriptionCreate, TaskItem, TaskPlanningPreview, TaskPlanningPreviewRequest, TaskStaffing, Timesheet, UserAccess, WorkNorm } from '../types/domain';
 
 export const api = {
   login: (payload: LoginRequest) => http.post<LoginResponse>('/Auth/login', payload).then(r => r.data),
@@ -11,6 +11,7 @@ export const api = {
 
   accounts: () => http.get<Account[]>('/Accounts').then(r => r.data),
   createAccount: (payload: AccountCreate) => http.post<Account>('/Accounts', payload).then(r => r.data),
+  updateAccount: (accountId: string, payload: AccountUpdate) => http.put(`/Accounts/${accountId}`, payload).then(r => r.data),
 
   employees: () => http.get<Employee[]>('/Employees').then(r => r.data),
   employeesVisibleTo: (employeeId: string) => http.get<Employee[]>(`/Employees/visible-to/${employeeId}`).then(r => r.data),
@@ -21,6 +22,8 @@ export const api = {
   tasksVisibleTo: (employeeId: string) => http.get<TaskItem[]>(`/Tasks/visible-to/${employeeId}`).then(r => r.data),
   taskStaffing: (params: { startDate: string; endDate?: string | null; projectId?: string | null; hoursPerDay?: number }) => http.get<TaskStaffing[]>('/Tasks/staffing', { params }).then(r => r.data),
   createTask: (payload: TaskCreate) => http.post<TaskItem>('/Tasks', payload).then(r => r.data),
+  previewTaskPlanning: (payload: TaskPlanningPreviewRequest) => http.post<TaskPlanningPreview>('/Tasks/planning-preview', payload).then(r => r.data),
+  createPlannedTask: (payload: CreatePlannedTaskRequest) => http.post<CreatePlannedTaskResponse>('/Tasks/create-planned', payload).then(r => r.data),
 
   descriptions: () => http.get<TaskDescription[]>('/Descriptions').then(r => r.data),
   createDescription: (payload: TaskDescriptionCreate) => http.post<TaskDescription>('/Descriptions', payload).then(r => r.data),
@@ -31,9 +34,10 @@ export const api = {
   allocationsByTask: (projectId: string, taskId: string) => http.get<Allocation[]>(`/Allocations/task/${projectId}/${taskId}`).then(r => r.data),
   allocationAvailability: (params: AllocationAvailabilityRequest) => http.get<AllocationAvailability[]>('/Allocations/availability', { params }).then(r => r.data),
   underutilizedEmployees: (params: AllocationAvailabilityRequest) => http.get<AllocationAvailability[]>('/Allocations/underutilized', { params }).then(r => r.data),
+  resourcePlanningOverview: (params: { startDate: string; windowDays?: number; projectId?: string | null }) => http.get<ResourcePlanningOverview>('/Allocations/planning-overview', { params }).then(r => r.data),
   simulateAllocation: (payload: AllocationSimulationRequest) => http.post<AllocationSimulation>('/Allocations/simulate', payload).then(r => r.data),
   createAllocation: (payload: AllocationCreate) => http.post<Allocation>('/Allocations', payload).then(r => r.data),
-  createAutoAllocation: (payload: AutoAllocationCreate) => http.post<Allocation>('/Allocations/auto', payload).then(r => r.data),
+  createAutoAllocation: (payload: AutoAllocationCreate) => http.post<AutoAllocationResult>('/Allocations/auto', payload).then(r => r.data),
 
   timesheets: () => http.get<Timesheet[]>('/Timesheets').then(r => r.data),
   timesheetsByEmployee: (employeeId: string) => http.get<Timesheet[]>(`/Timesheets/employee/${employeeId}`).then(r => r.data),

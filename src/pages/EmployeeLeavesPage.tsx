@@ -4,6 +4,7 @@ import { useAuth } from '../auth/AuthContext';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Status } from '../components/ui/Status';
 import { useAsync } from '../hooks/useAsync';
+import { dateInputValue } from '../utils/format';
 import { formatDate, formatNumber } from '../utils/format';
 
 export function EmployeeLeavesPage() {
@@ -15,7 +16,7 @@ export function EmployeeLeavesPage() {
   const leaves = useAsync(api.employeeLeaves, []);
   const [message, setMessage] = useState<string | null>(null);
   const [selectedLeaveId, setSelectedLeaveId] = useState('');
-  const [form, setForm] = useState({ employeeId: '', startDate: new Date().toISOString().slice(0, 10), endDate: new Date().toISOString().slice(0, 10), leaveType: 'Vacation', reason: '', replacementEmployeeId: '' });
+  const [form, setForm] = useState({ employeeId: '', startDate: dateInputValue(), endDate: dateInputValue(), leaveType: 'Vacation', reason: '', replacementEmployeeId: '' });
   const plan = useAsync(() => selectedLeaveId ? api.employeeLeavePlan(selectedLeaveId) : Promise.resolve(null), [selectedLeaveId]);
 
   async function saveLeave(event: FormEvent) {

@@ -33,7 +33,7 @@ export function CreateEmployeePage() {
       <input className="field" placeholder="Phone" value={form.phoneNumber} onChange={e => setForm({ ...form, phoneNumber: e.target.value })} required />
       <input className="field" placeholder="Internal account code" value={form.accountId} onChange={e => setForm({ ...form, accountId: e.target.value })} required />
       <input className="field" placeholder="Username" value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} required />
-      <input className="field" placeholder="Password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required />
+      <input className="field" placeholder="Password" type="password" minLength={8} value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required />
       <select className="field" value={form.role} onChange={e => setForm({ ...form, role: e.target.value as UserRole })}><option value="Employee">Employee</option><option value="Manager">Manager</option><option value="Admin">Admin</option></select>
       <select className="field" value={form.workNormId} onChange={e => setForm({ ...form, workNormId: e.target.value })}>{(workNorms.data ?? []).map(n => <option key={n.workNormId} value={n.workNormId}>{n.workNormName} - {formatNumber(n.workHours)}h</option>)}</select>
       <button className="btn">Create employee</button>

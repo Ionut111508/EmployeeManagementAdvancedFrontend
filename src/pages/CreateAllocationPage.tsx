@@ -63,10 +63,14 @@ export function CreateAllocationPage() {
     event.preventDefault();
     setMessage(null);
     try {
-      if (automatic) await api.createAutoAllocation({ projectId: form.projectId, taskId: form.taskId, startDate: form.startDate, endDate: form.endDate || null, hoursPerDay: Number(form.hoursPerDay), skillId: form.skillId || null });
-      else await api.createAllocation({ employeeId: form.employeeId, projectId: form.projectId, taskId: form.taskId, allocationStartDate: form.startDate, allocationEndDate: form.endDate || null, allocatedHours: Number(form.hoursPerDay) });
+      if (automatic) {
+        const result = await api.createAutoAllocation({ projectId: form.projectId, taskId: form.taskId, startDate: form.startDate, endDate: form.endDate || null, hoursPerDay: Number(form.hoursPerDay), skillId: form.skillId || null });
+        setMessage(`${result.status}: ${formatNumber(result.allocatedHours)}h allocated across ${result.allocations.length} employee(s), ${formatNumber(result.remainingHours)}h remaining.`);
+      } else {
+        await api.createAllocation({ employeeId: form.employeeId, projectId: form.projectId, taskId: form.taskId, allocationStartDate: form.startDate, allocationEndDate: form.endDate || null, allocatedHours: Number(form.hoursPerDay) });
+        setMessage('Allocation created.');
+      }
       setSimulation(null);
-      setMessage('Allocation created.');
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Could not create allocation.');
     }

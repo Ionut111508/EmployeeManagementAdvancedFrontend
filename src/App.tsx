@@ -21,6 +21,7 @@ import { EmployeeLeavesPage } from './pages/EmployeeLeavesPage';
 import { GanttPage } from './pages/GanttPage';
 import { RolesPage } from './pages/RolesPage';
 import { LoginPage } from './pages/LoginPage';
+import { AccountsPage } from './pages/AccountsPage';
 import type { Permission } from './types/domain';
 
 function AccessDenied() {
@@ -57,6 +58,7 @@ export default function App() {
         <Route path="people/:employeeId" element={<EmployeeDetailsPage />} />
         <Route path="employees/create" element={<RequirePermission anyOf={['employees.manage']}><CreateEmployeePage /></RequirePermission>} />
         <Route path="roles" element={<RequirePermission anyOf={['roles.manage']}><RolesPage /></RequirePermission>} />
+        <Route path="accounts" element={<RequirePermission anyOf={['accounts.manage']}><AccountsPage /></RequirePermission>} />
         <Route path="allocations" element={<RequirePermission anyOf={['allocations.view.all', 'allocations.view.managed', 'allocations.view.own']}><AllocationsPage /></RequirePermission>} />
         <Route path="allocations/create" element={<RequirePermission anyOf={['allocations.manage', 'allocations.manage.managed']}><CreateAllocationPage /></RequirePermission>} />
         <Route path="timesheets" element={<RequirePermission anyOf={['timesheets.view.all', 'timesheets.view.team', 'timesheets.manage.own']}><TimesheetsPage /></RequirePermission>} />

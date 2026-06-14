@@ -4,10 +4,11 @@ import { useAuth } from '../auth/AuthContext';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Status } from '../components/ui/Status';
 import { useAsync } from '../hooks/useAsync';
-import { formatDate, formatNumber } from '../utils/format';
+import { formatDate, formatNumber, parseLocalDate } from '../utils/format';
 
 const day = 1000 * 60 * 60 * 24;
 const today = new Date();
+today.setHours(0, 0, 0, 0);
 
 function workingDays(start: Date, end: Date) {
   let count = 0;
@@ -26,7 +27,7 @@ export function GanttPage() {
   const { data, loading, error } = useAsync(async () => {
     if (!session) throw new Error('Login is required.');
     const allocations = await loadVisibleAllocations(session, access);
-    return allocations.map(a => ({ ...a, start: new Date(a.allocationStartDate), end: new Date(a.allocationEndDate ?? a.allocationStartDate) }));
+    return allocations.map(a => ({ ...a, start: parseLocalDate(a.allocationStartDate), end: parseLocalDate(a.allocationEndDate ?? a.allocationStartDate) }));
   }, [session?.employeeId, access?.managedProjectIds.join('|')]);
 
   const projects = useMemo(() => Array.from(new Map((data ?? []).map(a => [a.projectId, a.projectName ?? a.projectId])).entries()), [data]);
@@ -48,7 +49,7 @@ export function GanttPage() {
 
   return <section className="page-stack">
     <PageHeader eyebrow="Planning" title="Gantt Chart" description="Filter the plan by project, employee, and timeline status." />
-    <div className="card filter-bar"><strong>Filters</strong><select className="field" value={projectFilter} onChange={e => setProjectFilter(e.target.value)}><option value="all">All projects</option>{projects.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select><select className="field" value={employeeFilter} onChange={e => setEmployeeFilter(e.target.value)}><option value="all">All employees</option>{employees.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select><select className="field" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option value="all">All statuses</option><option value="active">Active now</option><option value="future">Future</option><option value="closed">Closed / overdue</option></select><span className="badge">{filtered.length} allocations</span></div>
+    <div className="card filter-bar"><strong>Filters</strong><select className="field" value={projectFilter} onChange={e => setProjectFilter(e.target.value)}><option value="all">All projects</option>{projects.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select><select className="field" value={employeeFilter} onChange={e => setEmployeeFilter(e.target.value)}><option value="all">All employees</option>{employees.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select><select className="field" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option value="all">All statuses</option><option value="active">Active now</option><option value="future">Future</option><option value="closed">Completed</option></select><span className="badge">{filtered.length} allocations</span></div>
     <Status loading={loading} error={error} empty={filtered.length === 0} />
     {data && filtered.length > 0 && <div className="table-card gantt-card">
       <div className="gantt-header"><strong>{formatDate(min.toISOString())}</strong><span className="muted">Planning interval</span><strong>{formatDate(max.toISOString())}</strong></div>
@@ -56,7 +57,7 @@ export function GanttPage() {
         {filtered.map(item => {
           const left = Math.max(0, ((item.start.getTime() - min.getTime()) / day) / totalDays * 100);
           const width = Math.max(4, (((item.end.getTime() - item.start.getTime()) / day) + 1) / totalDays * 100);
-          const status = item.end < today ? 'Closed' : item.start > today ? 'Future' : 'Active';
+          const status = item.end < today ? 'Completed' : item.start > today ? 'Future' : 'Active';
           const totalHours = workingDays(item.start, item.end) * item.allocatedHours;
           return <div className="gantt-row" key={`${item.employeeId}-${item.projectId}-${item.taskId}`}>
             <div className="gantt-label"><strong>{item.taskName ?? item.taskId}</strong><span>{item.employeeName ?? item.employeeId} | {item.projectName ?? item.projectId} | {formatNumber(item.allocatedHours)}h/day | {formatNumber(totalHours)}h total</span><span>{status} | Skill: {item.requiredSkillName ? `${item.requiredSkillName} ${item.requiredSkillLevel ?? ''}` : 'not set'}</span></div>

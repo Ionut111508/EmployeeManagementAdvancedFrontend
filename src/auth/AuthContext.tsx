@@ -15,14 +15,22 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 function readStoredSession() {
-  const rawSession = localStorage.getItem('authSession');
+  localStorage.removeItem('authSession');
+  localStorage.removeItem('authToken');
+  const rawSession = sessionStorage.getItem('authSession');
   if (!rawSession) return null;
 
   try {
-    return JSON.parse(rawSession) as LoginResponse;
+    const storedSession = JSON.parse(rawSession) as LoginResponse;
+    if (!storedSession.token || !storedSession.expiresAt || new Date(storedSession.expiresAt).getTime() <= Date.now()) {
+      sessionStorage.removeItem('authSession');
+      sessionStorage.removeItem('authToken');
+      return null;
+    }
+    return storedSession;
   } catch {
-    localStorage.removeItem('authSession');
-    localStorage.removeItem('authToken');
+    sessionStorage.removeItem('authSession');
+    sessionStorage.removeItem('authToken');
     return null;
   }
 }
@@ -50,19 +58,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => { active = false; };
   }, [session?.employeeId]);
 
+  useEffect(() => {
+    const clearSession = () => {
+      sessionStorage.removeItem('authSession');
+      sessionStorage.removeItem('authToken');
+      setAccess(null);
+      setSession(null);
+    };
+    window.addEventListener('auth:unauthorized', clearSession);
+
+    const expiresIn = session?.expiresAt ? new Date(session.expiresAt).getTime() - Date.now() : 0;
+    const timeout = expiresIn > 0 ? window.setTimeout(clearSession, expiresIn) : undefined;
+    return () => {
+      window.removeEventListener('auth:unauthorized', clearSession);
+      if (timeout) window.clearTimeout(timeout);
+    };
+  }, [session?.expiresAt]);
+
   const value = useMemo<AuthContextValue>(() => ({
     session,
     access,
     isAuthenticated: Boolean(session),
     login: nextSession => {
-      localStorage.setItem('authSession', JSON.stringify(nextSession));
-      if (nextSession.token) localStorage.setItem('authToken', nextSession.token);
-      else localStorage.removeItem('authToken');
+      sessionStorage.setItem('authSession', JSON.stringify(nextSession));
+      if (nextSession.token) sessionStorage.setItem('authToken', nextSession.token);
+      else sessionStorage.removeItem('authToken');
       setSession(nextSession);
     },
     logout: () => {
-      localStorage.removeItem('authSession');
-      localStorage.removeItem('authToken');
+      sessionStorage.removeItem('authSession');
+      sessionStorage.removeItem('authToken');
       setAccess(null);
       setSession(null);
     },

@@ -1,6 +1,25 @@
 export function formatDate(value?: string | null) {
   if (!value) return '-';
-  return new Intl.DateTimeFormat('ro-RO').format(new Date(value));
+  return new Intl.DateTimeFormat('ro-RO').format(parseLocalDate(value));
+}
+
+export function parseLocalDate(value: string) {
+  const dateOnly = value.slice(0, 10);
+  const [year, month, day] = dateOnly.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+export function dateInputValue(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+export function addDays(date: Date, days: number) {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
 }
 
 export function formatNumber(value?: number | null, digits = 1) {
