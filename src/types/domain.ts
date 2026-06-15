@@ -28,6 +28,12 @@ export type Permission =
   | 'timesheets.view.all'
   | 'timesheets.view.team'
   | 'timesheets.manage.own'
+  | 'timesheets.approve'
+  | 'notifications.view'
+  | 'audit.view.all'
+  | 'audit.view.managed'
+  | 'tasks.status.manage'
+  | 'tasks.status.manage.managed'
   | 'profile.view';
 
 export interface Account { accountId: string; username: string; role: UserRole; employeeId?: string | null; employeeName?: string | null; }
@@ -46,7 +52,9 @@ export interface EmployeeRoleUpdate { role: UserRole; managedProjectIds: string[
 export interface Project { projectId: string; projectName: string; }
 export interface TaskDescription { descriptionId: string; taskDescriptionText?: string | null; }
 export interface TaskDescriptionCreate { descriptionId: string; taskDescriptionText: string; }
-export interface TaskItem { projectId: string; taskId: string; taskName: string; estimatedHours?: number | null; descriptionId?: string | null; requiredSkillId?: string | null; plannedStartDate?: string | null; plannedEndDate?: string | null; project?: Project | null; description?: TaskDescription | null; requiredSkill?: Skill | null; }
+export type TaskStatus = 'Backlog' | 'Ready' | 'InProgress' | 'Blocked' | 'Completed' | 'Cancelled';
+export type TimesheetStatus = 'Pending' | 'Approved' | 'Rejected';
+export interface TaskItem { projectId: string; taskId: string; taskName: string; estimatedHours?: number | null; descriptionId?: string | null; requiredSkillId?: string | null; plannedStartDate?: string | null; plannedEndDate?: string | null; status: TaskStatus; project?: Project | null; description?: TaskDescription | null; requiredSkill?: Skill | null; }
 export interface TaskCreate { projectId: string; taskId: string; taskName: string; estimatedHours: number; descriptionId: string; requiredSkillId?: string | null; plannedStartDate?: string | null; plannedEndDate?: string | null; }
 export interface Allocation { employeeId: string; projectId: string; taskId: string; employeeName?: string | null; projectName?: string | null; taskName?: string | null; requiredSkillId?: string | null; requiredSkillName?: string | null; requiredSkillLevel?: string | null; allocationStartDate: string; allocationEndDate?: string | null; allocatedHours: number; totalAllocationHours?: number | null; employee?: Employee | null; taskItem?: TaskItem | null; }
 export interface AllocationCreate { employeeId: string; projectId: string; taskId: string; allocationStartDate: string; allocationEndDate?: string | null; allocatedHours: number; }
@@ -145,7 +153,10 @@ export interface TaskStaffing {
   status: string;
   candidates: AllocationAvailability[];
 }
-export interface Timesheet { projectId: string; taskId: string; employeeId: string; workDate: string; workedHours: number; employee?: Employee | null; taskItem?: TaskItem | null; }
+export interface Timesheet { projectId: string; taskId: string; employeeId: string; workDate: string; workedHours: number; status: TimesheetStatus; submittedAt: string; reviewedAt?: string | null; reviewedByEmployeeId?: string | null; reviewComment?: string | null; employee?: Employee | null; taskItem?: TaskItem | null; }
+export interface TimesheetReview { status: 'Approved' | 'Rejected'; comment?: string | null; }
+export interface AuditLog { auditLogId: number; createdAt: string; actorEmployeeId?: string | null; actorRole: UserRole; action: string; entityType: string; entityId: string; projectId?: string | null; summary: string; beforeJson?: string | null; afterJson?: string | null; }
+export interface AppNotification { notificationId: string; type: 'StaffingDeficit' | 'OverAllocation' | 'TimesheetApproval'; severity: 'Critical' | 'Warning' | 'Info'; title: string; message: string; projectId?: string | null; taskId?: string | null; employeeId?: string | null; relevantDate?: string | null; }
 export interface TaskComment { taskCommentId: string; commentText: string; commentDate: string; projectId: string; taskId: string; employeeId: string; }
 export interface EmployeeSkill { employeeId: string; skillId: string; acquiredDate?: string | null; employee?: Employee | null; skill?: Skill | null; }
 export interface EmployeeSkillCreate { employeeId: string; skillId: string; acquiredDate?: string | null; }

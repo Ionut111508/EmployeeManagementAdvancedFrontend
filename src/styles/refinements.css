@@ -178,6 +178,158 @@
   background: #f8fafc;
 }
 
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #475569;
+}
+
+.gantt-bar {
+  overflow: visible;
+  cursor: help;
+}
+
+.gantt-track {
+  overflow: visible;
+}
+
+@media (min-width: 1001px) {
+  .gantt-card {
+    overflow: visible;
+  }
+}
+
+.gantt-bar-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gantt-tooltip {
+  position: absolute;
+  z-index: 20;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  width: 250px;
+  padding: 12px;
+  display: none;
+  color: #e2e8f0;
+  background: #172033;
+  border-radius: 7px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, .25);
+  transform: translateX(-50%);
+  white-space: normal;
+}
+
+.gantt-tooltip strong,
+.gantt-tooltip span {
+  display: block;
+}
+
+.gantt-tooltip span {
+  margin-top: 4px;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.gantt-bar:hover .gantt-tooltip,
+.gantt-bar:focus-visible .gantt-tooltip {
+  display: block;
+}
+
+.form-grid > label {
+  display: grid;
+  gap: 7px;
+  color: #475569;
+  font-size: .86rem;
+  font-weight: 700;
+}
+
+.notification-list {
+  display: grid;
+  gap: 12px;
+}
+
+.notification-item,
+.dashboard-alert {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.notification-item {
+  padding: 18px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-left-width: 4px;
+  border-radius: 8px;
+}
+
+.notification-item p,
+.notification-item small,
+.dashboard-alert span,
+.review-note {
+  display: block;
+  margin: 5px 0 0;
+  color: #64748b;
+}
+
+.notification-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.notification-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  color: #2563eb;
+  background: #eff6ff;
+  border-radius: 7px;
+}
+
+.severity-critical { border-left-color: #dc2626; }
+.severity-warning { border-left-color: #d97706; }
+.severity-info { border-left-color: #2563eb; }
+
+.dashboard-alert {
+  color: #1e3a8a;
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.review-controls {
+  display: grid;
+  gap: 8px;
+  min-width: 250px;
+}
+
+.btn.danger {
+  color: white;
+  background: #dc2626;
+}
+
+.timesheet-pending { color: #92400e; background: #fef3c7; }
+.timesheet-approved, .task-completed { color: #166534; background: #dcfce7; }
+.timesheet-rejected, .task-cancelled, .task-blocked { color: #991b1b; background: #fee2e2; }
+.task-inprogress { color: #1d4ed8; background: #dbeafe; }
+.task-ready { color: #075985; background: #e0f2fe; }
+
+.workflow-select {
+  width: 100%;
+  margin-top: 14px;
+}
+
 @media (max-width: 1000px) {
   .sidebar {
     gap: 18px;
@@ -233,5 +385,10 @@
   .filter-bar > label .field {
     width: 100%;
     margin-top: 5px;
+  }
+
+  .notification-item,
+  .dashboard-alert {
+    grid-template-columns: 1fr;
   }
 }

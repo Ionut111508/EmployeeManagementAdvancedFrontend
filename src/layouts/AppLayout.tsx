@@ -1,7 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import type { ElementType } from 'react';
-import { BarChart3, BriefcaseBusiness, CheckSquare, Clock3, Gauge, Layers3, Link2, LogOut, Network, ShieldCheck, UserCog, UserRound, Users, Wrench } from 'lucide-react';
-import { API_BASE_URL } from '../api/http';
+import { BarChart3, Bell, BriefcaseBusiness, CheckSquare, ClipboardList, Clock3, Gauge, Layers3, Link2, LogOut, Network, ShieldCheck, UserCog, UserRound, Users, Wrench } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import type { Permission } from '../types/domain';
 
@@ -17,6 +16,8 @@ const navItems = [
   { to: '/leaves', label: 'Leaves', icon: Clock3, permissions: ['leaves.manage', 'leaves.view.team', 'leaves.request'] },
   { to: '/timesheets', label: 'Timesheets', icon: Clock3, permissions: ['timesheets.view.all', 'timesheets.view.team', 'timesheets.manage.own'] },
   { to: '/gantt', label: 'Gantt', icon: BarChart3, permissions: ['allocations.view.all', 'allocations.view.managed', 'allocations.view.own'] },
+  { to: '/notifications', label: 'Notifications', icon: Bell, permissions: ['notifications.view'] },
+  { to: '/audit', label: 'Audit log', icon: ClipboardList, permissions: ['audit.view.all', 'audit.view.managed'] },
   { to: '/departments', label: 'Departments', icon: Layers3, permissions: ['employees.view.all', 'employees.view.available'] },
   { to: '/skills', label: 'Skills', icon: Wrench, permissions: ['employees.view.all', 'employees.view.available'] }
 ] satisfies Array<{ to: string; label: string; icon: ElementType; permissions?: Permission[] }>;
@@ -47,10 +48,7 @@ export function AppLayout() {
       </aside>
       <div className="content-shell">
         <header className="topbar">
-          <div>
-            <span className="muted small-label">API</span>
-            <strong>{API_BASE_URL}</strong>
-          </div>
+          <div className="topbar-context"><strong>NovaTech Project Suite</strong></div>
           <div className="topbar-actions">
             <div className="session-summary">
               <strong>{session?.fullName}</strong>

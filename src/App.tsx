@@ -22,6 +22,8 @@ import { GanttPage } from './pages/GanttPage';
 import { RolesPage } from './pages/RolesPage';
 import { LoginPage } from './pages/LoginPage';
 import { AccountsPage } from './pages/AccountsPage';
+import { NotificationsPage } from './pages/NotificationsPage';
+import { AuditLogsPage } from './pages/AuditLogsPage';
 import type { Permission } from './types/domain';
 
 function AccessDenied() {
@@ -67,6 +69,8 @@ export default function App() {
         <Route path="skills" element={<RequirePermission anyOf={['employees.view.all', 'employees.view.available']}><SkillsPage /></RequirePermission>} />
         <Route path="assignments" element={<RequirePermission anyOf={['employees.manage', 'employees.manage.managed']}><AssignmentsPage /></RequirePermission>} />
         <Route path="gantt" element={<RequirePermission anyOf={['allocations.view.all', 'allocations.view.managed', 'allocations.view.own']}><GanttPage /></RequirePermission>} />
+        <Route path="notifications" element={<RequirePermission anyOf={['notifications.view']}><NotificationsPage /></RequirePermission>} />
+        <Route path="audit" element={<RequirePermission anyOf={['audit.view.all', 'audit.view.managed']}><AuditLogsPage /></RequirePermission>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../api/endpoints';
 import { loadVisibleAllocations } from '../api/scoped';
 import { useAuth } from '../auth/AuthContext';
@@ -17,6 +18,7 @@ export function AllocationsPage() {
   const { session, access, hasPermission } = useAuth();
   const [employeeFilter, setEmployeeFilter] = useState('all');
   const [projectFilter, setProjectFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('active');
   const [availabilityDates, setAvailabilityDates] = useState({
     startDate: dateInputValue(),
     endDate: dateInputValue(addDays(new Date(), 13))
@@ -28,8 +30,17 @@ export function AllocationsPage() {
 
   const employees = useMemo(() => Array.from(new Map((data ?? []).map(allocation => [allocation.employeeId, allocation.employeeName ?? 'Unknown employee'])).entries()), [data]);
   const projects = useMemo(() => Array.from(new Map((data ?? []).map(allocation => [allocation.projectId, allocation.projectName ?? 'Unknown project'])).entries()), [data]);
-  const filtered = useMemo(() => (data ?? []).filter(allocation => (employeeFilter === 'all' || allocation.employeeId === employeeFilter) && (projectFilter === 'all' || allocation.projectId === projectFilter)), [data, employeeFilter, projectFilter]);
   const today = dateInputValue();
+  const filtered = useMemo(() => (data ?? []).filter(allocation => {
+    const start = allocation.allocationStartDate.slice(0, 10);
+    const end = (allocation.allocationEndDate ?? allocation.allocationStartDate).slice(0, 10);
+    const matchesStatus = statusFilter === 'all' ||
+      (statusFilter === 'active' && start <= today && end >= today) ||
+      (statusFilter === 'upcoming' && start > today) ||
+      (statusFilter === 'past' && end < today);
+    return (employeeFilter === 'all' || allocation.employeeId === employeeFilter) &&
+      (projectFilter === 'all' || allocation.projectId === projectFilter) && matchesStatus;
+  }), [data, employeeFilter, projectFilter, statusFilter, today]);
   const currentHoursPerDay = filtered
     .filter(item => item.allocationStartDate.slice(0, 10) <= today && (item.allocationEndDate ?? item.allocationStartDate).slice(0, 10) >= today)
     .reduce((sum, item) => sum + item.allocatedHours, 0);
@@ -41,8 +52,8 @@ export function AllocationsPage() {
   }, [session?.employeeId, availabilityProjectId, availabilityDates.startDate, availabilityDates.endDate]);
 
   return <section className="page-stack">
-    <PageHeader eyebrow="Resource planning" title="Allocations" description="See current assignments, unused capacity and employees becoming available soon." />
-    <div className="card filter-bar"><strong>Allocation filters</strong><select className="field" value={employeeFilter} onChange={event => setEmployeeFilter(event.target.value)}><option value="all">All employees</option>{employees.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select><select className="field" value={projectFilter} onChange={event => setProjectFilter(event.target.value)}><option value="all">All projects</option>{projects.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select><span className="badge">Planned today: {formatNumber(currentHoursPerDay)}h/day</span></div>
+    <PageHeader eyebrow="Resource planning" title="Allocations" description="See current assignments, unused capacity and employees becoming available soon." actions={hasPermission('allocations.manage') || hasPermission('allocations.manage.managed') ? <Link className="btn" to="/allocations/create">Allocate employee</Link> : undefined} />
+    <div className="card filter-bar"><strong>Allocation filters</strong>{session?.role !== 'Employee' && <select className="field" value={employeeFilter} onChange={event => setEmployeeFilter(event.target.value)}><option value="all">All employees</option>{employees.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select>}<select className="field" value={projectFilter} onChange={event => setProjectFilter(event.target.value)}><option value="all">All projects</option>{projects.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select><select className="field" value={statusFilter} onChange={event => setStatusFilter(event.target.value)}><option value="active">Active now</option><option value="upcoming">Upcoming</option><option value="past">Past</option><option value="all">All periods</option></select><span className="badge">Planned today: {formatNumber(currentHoursPerDay)}h/day</span></div>
 
     {hasPermission('availability.view') && <div className="table-card">
       <div className="gantt-header"><div><h2>Capacity outlook</h2><p className="muted">The next window is compared automatically with the selected current window.</p></div><span className="badge">Project: {availabilityProjectId ?? 'company'}</span></div>

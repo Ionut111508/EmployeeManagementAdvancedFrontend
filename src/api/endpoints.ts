@@ -1,5 +1,5 @@
 import { http } from './http';
-import type { Account, AccountCreate, AccountUpdate, Allocation, AllocationAvailability, AllocationAvailabilityRequest, AllocationCreate, AllocationSimulation, AllocationSimulationRequest, AutoAllocationCreate, AutoAllocationResult, CreatePlannedTaskRequest, CreatePlannedTaskResponse, Department, Employee, EmployeeCreate, EmployeeDepartment, EmployeeDepartmentCreate, EmployeeLeave, EmployeeLeaveCreate, EmployeeLeavePlan, EmployeeRole, EmployeeRoleUpdate, EmployeeSkill, EmployeeSkillCreate, LoginRequest, LoginResponse, Project, ProjectSummary, ResourcePlanningOverview, Skill, TaskComment, TaskCreate, TaskDescription, TaskDescriptionCreate, TaskItem, TaskPlanningPreview, TaskPlanningPreviewRequest, TaskStaffing, Timesheet, UserAccess, WorkNorm } from '../types/domain';
+import type { Account, AccountCreate, AccountUpdate, Allocation, AllocationAvailability, AllocationAvailabilityRequest, AllocationCreate, AllocationSimulation, AllocationSimulationRequest, AppNotification, AuditLog, AutoAllocationCreate, AutoAllocationResult, CreatePlannedTaskRequest, CreatePlannedTaskResponse, Department, Employee, EmployeeCreate, EmployeeDepartment, EmployeeDepartmentCreate, EmployeeLeave, EmployeeLeaveCreate, EmployeeLeavePlan, EmployeeRole, EmployeeRoleUpdate, EmployeeSkill, EmployeeSkillCreate, LoginRequest, LoginResponse, Project, ProjectSummary, ResourcePlanningOverview, Skill, TaskComment, TaskCreate, TaskDescription, TaskDescriptionCreate, TaskItem, TaskPlanningPreview, TaskPlanningPreviewRequest, TaskStaffing, TaskStatus, Timesheet, TimesheetReview, UserAccess, WorkNorm } from '../types/domain';
 
 export const api = {
   login: (payload: LoginRequest) => http.post<LoginResponse>('/Auth/login', payload).then(r => r.data),
@@ -25,6 +25,7 @@ export const api = {
   createTask: (payload: TaskCreate) => http.post<TaskItem>('/Tasks', payload).then(r => r.data),
   previewTaskPlanning: (payload: TaskPlanningPreviewRequest) => http.post<TaskPlanningPreview>('/Tasks/planning-preview', payload).then(r => r.data),
   createPlannedTask: (payload: CreatePlannedTaskRequest) => http.post<CreatePlannedTaskResponse>('/Tasks/create-planned', payload).then(r => r.data),
+  updateTaskStatus: (projectId: string, taskId: string, status: TaskStatus, comment?: string) => http.put<TaskItem>(`/Tasks/${projectId}/${taskId}/status`, { status, comment }).then(r => r.data),
 
   descriptions: () => http.get<TaskDescription[]>('/Descriptions').then(r => r.data),
   createDescription: (payload: TaskDescriptionCreate) => http.post<TaskDescription>('/Descriptions', payload).then(r => r.data),
@@ -43,7 +44,10 @@ export const api = {
   timesheets: () => http.get<Timesheet[]>('/Timesheets').then(r => r.data),
   timesheetsByEmployee: (employeeId: string) => http.get<Timesheet[]>(`/Timesheets/employee/${employeeId}`).then(r => r.data),
   timesheetsByTask: (projectId: string, taskId: string) => http.get<Timesheet[]>(`/Timesheets/task/${projectId}/${taskId}`).then(r => r.data),
-  createTimesheet: (payload: Omit<Timesheet, 'employee' | 'taskItem'>) => http.post<Timesheet>('/Timesheets', payload).then(r => r.data),
+  createTimesheet: (payload: { projectId: string; taskId: string; employeeId: string; workDate: string; workedHours: number }) => http.post<Timesheet>('/Timesheets', payload).then(r => r.data),
+  reviewTimesheet: (entry: Pick<Timesheet, 'projectId' | 'taskId' | 'employeeId' | 'workDate'>, payload: TimesheetReview) => http.put<Timesheet>(`/Timesheets/${entry.projectId}/${entry.taskId}/${entry.employeeId}/${entry.workDate.slice(0, 10)}/review`, payload).then(r => r.data),
+  notifications: (horizonDays = 30) => http.get<AppNotification[]>('/Notifications', { params: { horizonDays } }).then(r => r.data),
+  auditLogs: (params?: { entityType?: string; projectId?: string; limit?: number }) => http.get<AuditLog[]>('/AuditLogs', { params }).then(r => r.data),
   departments: () => http.get<Department[]>('/Departments').then(r => r.data),
   employeeDepartments: () => http.get<EmployeeDepartment[]>('/EmployeeDepartments').then(r => r.data),
   employeeDepartmentsByEmployee: (employeeId: string) => http.get<EmployeeDepartment[]>(`/EmployeeDepartments/employee/${employeeId}`).then(r => r.data),
