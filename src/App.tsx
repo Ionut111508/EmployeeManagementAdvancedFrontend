@@ -55,7 +55,7 @@ export default function App() {
         <Route path="tasks/create" element={<RequirePermission anyOf={['tasks.manage', 'tasks.manage.managed']}><CreateTaskPage /></RequirePermission>} />
         <Route path="task-view/:projectId/:taskId" element={<RequirePermission anyOf={['tasks.view.all', 'tasks.view.managed', 'tasks.view.assigned']}><TaskDetailsPage /></RequirePermission>} />
         <Route path="employees" element={<RequirePermission anyOf={['employees.view.all', 'employees.view.available']}><EmployeesPage /></RequirePermission>} />
-        <Route path="people/:employeeId" element={<EmployeeDetailsPage />} />
+        <Route path="people/:employeeId" element={<RequirePermission anyOf={['profile.view', 'employees.view.all', 'employees.view.available']}><EmployeeDetailsPage /></RequirePermission>} />
         <Route path="employees/create" element={<RequirePermission anyOf={['employees.manage']}><CreateEmployeePage /></RequirePermission>} />
         <Route path="roles" element={<RequirePermission anyOf={['roles.manage']}><RolesPage /></RequirePermission>} />
         <Route path="accounts" element={<RequirePermission anyOf={['accounts.manage']}><AccountsPage /></RequirePermission>} />
@@ -65,7 +65,7 @@ export default function App() {
         <Route path="leaves" element={<RequirePermission anyOf={['leaves.manage', 'leaves.view.team', 'leaves.request']}><EmployeeLeavesPage /></RequirePermission>} />
         <Route path="departments" element={<RequirePermission anyOf={['employees.view.all', 'employees.view.available']}><DepartmentsPage /></RequirePermission>} />
         <Route path="skills" element={<RequirePermission anyOf={['employees.view.all', 'employees.view.available']}><SkillsPage /></RequirePermission>} />
-        <Route path="assignments" element={<RequirePermission anyOf={['employees.manage']}><AssignmentsPage /></RequirePermission>} />
+        <Route path="assignments" element={<RequirePermission anyOf={['employees.manage', 'employees.manage.managed']}><AssignmentsPage /></RequirePermission>} />
         <Route path="gantt" element={<RequirePermission anyOf={['allocations.view.all', 'allocations.view.managed', 'allocations.view.own']}><GanttPage /></RequirePermission>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

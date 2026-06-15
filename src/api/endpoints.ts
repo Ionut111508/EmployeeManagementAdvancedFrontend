@@ -1,5 +1,5 @@
 import { http } from './http';
-import type { Account, AccountCreate, AccountUpdate, Allocation, AllocationAvailability, AllocationAvailabilityRequest, AllocationCreate, AllocationSimulation, AllocationSimulationRequest, AutoAllocationCreate, AutoAllocationResult, CreatePlannedTaskRequest, CreatePlannedTaskResponse, Department, Employee, EmployeeCreate, EmployeeDepartment, EmployeeDepartmentCreate, EmployeeLeave, EmployeeLeaveCreate, EmployeeLeavePlan, EmployeeRole, EmployeeSkill, EmployeeSkillCreate, LoginRequest, LoginResponse, Project, ProjectSummary, ResourcePlanningOverview, Skill, TaskComment, TaskCreate, TaskDescription, TaskDescriptionCreate, TaskItem, TaskPlanningPreview, TaskPlanningPreviewRequest, TaskStaffing, Timesheet, UserAccess, WorkNorm } from '../types/domain';
+import type { Account, AccountCreate, AccountUpdate, Allocation, AllocationAvailability, AllocationAvailabilityRequest, AllocationCreate, AllocationSimulation, AllocationSimulationRequest, AutoAllocationCreate, AutoAllocationResult, CreatePlannedTaskRequest, CreatePlannedTaskResponse, Department, Employee, EmployeeCreate, EmployeeDepartment, EmployeeDepartmentCreate, EmployeeLeave, EmployeeLeaveCreate, EmployeeLeavePlan, EmployeeRole, EmployeeRoleUpdate, EmployeeSkill, EmployeeSkillCreate, LoginRequest, LoginResponse, Project, ProjectSummary, ResourcePlanningOverview, Skill, TaskComment, TaskCreate, TaskDescription, TaskDescriptionCreate, TaskItem, TaskPlanningPreview, TaskPlanningPreviewRequest, TaskStaffing, Timesheet, UserAccess, WorkNorm } from '../types/domain';
 
 export const api = {
   login: (payload: LoginRequest) => http.post<LoginResponse>('/Auth/login', payload).then(r => r.data),
@@ -17,6 +17,7 @@ export const api = {
   employeesVisibleTo: (employeeId: string) => http.get<Employee[]>(`/Employees/visible-to/${employeeId}`).then(r => r.data),
   createEmployee: (payload: EmployeeCreate) => http.post<Employee>('/Employees', payload).then(r => r.data),
   employeeRoles: () => http.get<EmployeeRole[]>('/EmployeeRoles').then(r => r.data),
+  updateEmployeeRole: (employeeId: string, payload: EmployeeRoleUpdate) => http.put<EmployeeRole>(`/EmployeeRoles/${employeeId}`, payload).then(r => r.data),
 
   tasks: () => http.get<TaskItem[]>('/Tasks').then(r => r.data),
   tasksVisibleTo: (employeeId: string) => http.get<TaskItem[]>(`/Tasks/visible-to/${employeeId}`).then(r => r.data),
@@ -42,11 +43,14 @@ export const api = {
   timesheets: () => http.get<Timesheet[]>('/Timesheets').then(r => r.data),
   timesheetsByEmployee: (employeeId: string) => http.get<Timesheet[]>(`/Timesheets/employee/${employeeId}`).then(r => r.data),
   timesheetsByTask: (projectId: string, taskId: string) => http.get<Timesheet[]>(`/Timesheets/task/${projectId}/${taskId}`).then(r => r.data),
+  createTimesheet: (payload: Omit<Timesheet, 'employee' | 'taskItem'>) => http.post<Timesheet>('/Timesheets', payload).then(r => r.data),
   departments: () => http.get<Department[]>('/Departments').then(r => r.data),
   employeeDepartments: () => http.get<EmployeeDepartment[]>('/EmployeeDepartments').then(r => r.data),
+  employeeDepartmentsByEmployee: (employeeId: string) => http.get<EmployeeDepartment[]>(`/EmployeeDepartments/employee/${employeeId}`).then(r => r.data),
   createEmployeeDepartment: (payload: EmployeeDepartmentCreate) => http.post<EmployeeDepartment>('/EmployeeDepartments', payload).then(r => r.data),
   skills: () => http.get<Skill[]>('/Skills').then(r => r.data),
   employeeSkills: () => http.get<EmployeeSkill[]>('/EmployeeSkills').then(r => r.data),
+  employeeSkillsByEmployee: (employeeId: string) => http.get<EmployeeSkill[]>(`/EmployeeSkills/employee/${employeeId}`).then(r => r.data),
   createEmployeeSkill: (payload: EmployeeSkillCreate) => http.post<EmployeeSkill>('/EmployeeSkills', payload).then(r => r.data),
   employeeLeaves: () => http.get<EmployeeLeave[]>('/EmployeeLeaves').then(r => r.data),
   createEmployeeLeave: (payload: EmployeeLeaveCreate) => http.post('/EmployeeLeaves', payload).then(r => r.data),

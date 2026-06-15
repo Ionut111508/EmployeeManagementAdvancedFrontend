@@ -4,6 +4,7 @@ export type Permission =
   | 'roles.manage'
   | 'employees.view.all'
   | 'employees.manage'
+  | 'employees.manage.managed'
   | 'employees.view.available'
   | 'projects.view.all'
   | 'projects.manage'
@@ -40,7 +41,8 @@ export interface LoginResponse { token?: string; accountId: string; username: st
 export interface UserAccess { accountId: string; username: string; employeeId: string; fullName: string; role: UserRole; permissions: Permission[]; managedProjectIds: string[]; canViewAllCompanyData: boolean; canManageRoles: boolean; canViewAvailability: boolean; }
 export interface Employee { employeeId: string; firstName: string; lastName: string; email: string; phoneNumber: string; accountId: string; workNormId: string; account?: Account | null; workNorm?: WorkNorm | null; }
 export interface EmployeeCreate { employeeId: string; lastName: string; firstName: string; email: string; phoneNumber: string; accountId: string; workNormId: string; }
-export interface EmployeeRole { employeeId: string; fullName: string; username: string; role: UserRole; projectsManaged?: number; description?: string; }
+export interface EmployeeRole { employeeId: string; fullName: string; username: string; role: UserRole; managedProjectIds: string[]; managedProjectNames: string[]; }
+export interface EmployeeRoleUpdate { role: UserRole; managedProjectIds: string[]; }
 export interface Project { projectId: string; projectName: string; }
 export interface TaskDescription { descriptionId: string; taskDescriptionText?: string | null; }
 export interface TaskDescriptionCreate { descriptionId: string; taskDescriptionText: string; }

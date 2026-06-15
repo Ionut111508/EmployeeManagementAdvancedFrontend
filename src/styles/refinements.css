@@ -89,6 +89,95 @@
   overflow-y: auto;
 }
 
+.side-nav {
+  scrollbar-width: none;
+}
+
+.side-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.role-list {
+  display: grid;
+  gap: 10px;
+}
+
+.role-list-item,
+.role-editor-heading,
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.role-list-item {
+  padding: 12px 0;
+  border-top: 1px solid #e2e8f0;
+}
+
+.role-list-item p,
+.role-list-item small {
+  display: block;
+  margin: 3px 0 0;
+}
+
+.role-editor {
+  display: grid;
+  gap: 16px;
+}
+
+.role-editor > label {
+  display: grid;
+  gap: 7px;
+  max-width: 360px;
+  font-weight: 700;
+}
+
+.project-access-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+}
+
+.project-access-list legend {
+  padding: 0 7px;
+  font-weight: 800;
+}
+
+.project-access-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.project-access-option input {
+  margin-top: 3px;
+}
+
+.project-access-option span,
+.project-access-option small {
+  display: block;
+}
+
+.project-access-option small {
+  margin-top: 3px;
+  color: #64748b;
+}
+
+.field-static {
+  color: #475569;
+  background: #f8fafc;
+}
+
 @media (max-width: 1000px) {
   .sidebar {
     gap: 18px;
@@ -108,6 +197,10 @@
 
   .app-main {
     padding: 24px 18px;
+  }
+
+  .project-access-list {
+    grid-template-columns: 1fr;
   }
 }
 

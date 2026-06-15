@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import type { ElementType } from 'react';
-import { BarChart3, BriefcaseBusiness, CheckSquare, Clock3, Gauge, Layers3, Link2, LogOut, Network, ShieldCheck, UserCog, Users, Wrench } from 'lucide-react';
+import { BarChart3, BriefcaseBusiness, CheckSquare, Clock3, Gauge, Layers3, Link2, LogOut, Network, ShieldCheck, UserCog, UserRound, Users, Wrench } from 'lucide-react';
 import { API_BASE_URL } from '../api/http';
 import { useAuth } from '../auth/AuthContext';
 import type { Permission } from '../types/domain';
@@ -13,7 +13,7 @@ const navItems = [
   { to: '/accounts', label: 'Accounts', icon: UserCog, permissions: ['accounts.manage'] },
   { to: '/roles', label: 'Roles', icon: ShieldCheck, permissions: ['roles.manage'] },
   { to: '/allocations', label: 'Allocations', icon: Network, permissions: ['allocations.view.all', 'allocations.view.managed', 'allocations.view.own'] },
-  { to: '/assignments', label: 'Assignments', icon: Link2, permissions: ['employees.manage'] },
+  { to: '/assignments', label: 'Assignments', icon: Link2, permissions: ['employees.manage', 'employees.manage.managed'] },
   { to: '/leaves', label: 'Leaves', icon: Clock3, permissions: ['leaves.manage', 'leaves.view.team', 'leaves.request'] },
   { to: '/timesheets', label: 'Timesheets', icon: Clock3, permissions: ['timesheets.view.all', 'timesheets.view.team', 'timesheets.manage.own'] },
   { to: '/gantt', label: 'Gantt', icon: BarChart3, permissions: ['allocations.view.all', 'allocations.view.managed', 'allocations.view.own'] },
@@ -36,6 +36,7 @@ export function AppLayout() {
           </div>
         </div>
         <nav className="side-nav">
+          {session?.role === 'Employee' && session.employeeId && <NavLink to={`/people/${session.employeeId}`}><UserRound size={18} /><span>My profile</span></NavLink>}
           {visibleNavItems.map(item => (
             <NavLink key={item.to} to={item.to} end={item.to === '/'}>
               <item.icon size={18} />
