@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api/endpoints';
 import { loadVisibleAllocations, loadVisibleTimesheets } from '../api/scoped';
 import { useAuth } from '../auth/AuthContext';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Status } from '../components/ui/Status';
 import { useAsync } from '../hooks/useAsync';
-import { dateInputValue, formatDate, formatNumber } from '../utils/format';
+import { formatDate, formatNumber } from '../utils/format';
 import type { TaskStatus } from '../types/domain';
 
 const transitions: Record<TaskStatus, TaskStatus[]> = {
@@ -21,8 +21,11 @@ const transitions: Record<TaskStatus, TaskStatus[]> = {
 export function TaskDetailsPage() {
   const { projectId, taskId } = useParams();
   const { session, access, hasPermission } = useAuth();
+  const navigate = useNavigate();
   const [refreshKey, setRefreshKey] = useState(0);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const tasks = useAsync(() => {
     if (!session) throw new Error('Login is required.');
     return api.tasksVisibleTo(session.employeeId);
@@ -41,7 +44,7 @@ export function TaskDetailsPage() {
   const totalAllocated = taskAllocations.reduce((sum, item) => sum + item.allocatedHours, 0);
   const totalWorked = taskTimesheets.reduce((sum, item) => sum + item.workedHours, 0);
   const canManageStatus = hasPermission('tasks.status.manage') || hasPermission('tasks.status.manage.managed');
-  const canAllocateTask = task && (!task.plannedEndDate || task.plannedEndDate.slice(0, 10) >= dateInputValue()) && task.status !== 'Completed' && task.status !== 'Cancelled';
+  const canDeleteTask = hasPermission('tasks.manage') || hasPermission('tasks.manage.managed');
 
   async function changeStatus(status: TaskStatus) {
     if (!projectId || !taskId) return;
@@ -54,11 +57,27 @@ export function TaskDetailsPage() {
     }
   }
 
+  async function deleteTask() {
+    if (!projectId || !taskId) return;
+    setDeleting(true);
+    setStatusMessage(null);
+    try {
+      await api.deleteTask(projectId, taskId);
+      navigate('/tasks');
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : 'Could not delete task.');
+      setConfirmDelete(false);
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   return <section className="page-stack">
-    <PageHeader eyebrow="Task details" title={task?.taskName ?? 'Task details'} description="Task, project, estimate, allocation, and timesheet information." actions={(hasPermission('allocations.manage') || hasPermission('allocations.manage.managed')) && canAllocateTask ? <Link className="btn" to={`/allocations/create?projectId=${encodeURIComponent(projectId ?? '')}&taskId=${encodeURIComponent(taskId ?? '')}`}>Allocate employee</Link> : undefined} />
+    <PageHeader eyebrow="Task details" title={task?.taskName ?? 'Task details'} description="Task, project, estimate, allocation, and timesheet information." actions={canDeleteTask && task ? <button className="btn danger" type="button" onClick={() => setConfirmDelete(true)}>Delete task</button> : undefined} />
     <Link className="btn-link" to="/tasks">Back to tasks</Link>
     <Status loading={tasks.loading} error={tasks.error} empty={!task && !tasks.loading} />
     {statusMessage && <div className="status-card">{statusMessage}</div>}
+    {confirmDelete && task && <div className="status-card status-error delete-confirmation"><div><strong>Delete {task.taskName}?</strong><p>This removes {taskAllocations.length} allocation(s) and immediately returns those employees to the available capacity pool. Tasks with submitted timesheets are protected and cannot be deleted.</p></div><div className="table-actions"><button className="btn danger" type="button" disabled={deleting} onClick={deleteTask}>{deleting ? 'Deleting...' : 'Confirm delete'}</button><button className="btn secondary" type="button" disabled={deleting} onClick={() => setConfirmDelete(false)}>Cancel</button></div></div>}
     {task && <>
       <div className="grid grid-3">
         <article className="card"><h2>Project</h2><p>{task.project?.projectName ?? '-'}</p></article>

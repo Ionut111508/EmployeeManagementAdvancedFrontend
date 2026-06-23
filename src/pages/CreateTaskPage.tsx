@@ -5,7 +5,7 @@ import { PageHeader } from '../components/ui/PageHeader';
 import { Status } from '../components/ui/Status';
 import { useAsync } from '../hooks/useAsync';
 import type { TaskPlanningPreview } from '../types/domain';
-import { addDays, dateInputValue, formatNumber } from '../utils/format';
+import { addDays, dateInputValue, formatDate, formatNumber } from '../utils/format';
 
 const today = dateInputValue();
 const twoWeeksFromNow = dateInputValue(addDays(new Date(), 14));
@@ -144,7 +144,7 @@ export function CreateTaskPage() {
         {form.allocationMode === 'Automatic' && <>
           <h3>Automatic proposal</h3>
           <Status empty={plan.automaticPlan.length === 0} />
-          {plan.automaticPlan.length > 0 && <table className="data-table"><thead><tr><th>Employee</th><th>Hours/day</th><th>Total</th></tr></thead><tbody>{plan.automaticPlan.map(item => <tr key={item.employeeId}><td><strong>{item.employeeName}</strong></td><td>{formatNumber(item.hoursPerDay)}h</td><td>{formatNumber(item.totalHours)}h</td></tr>)}</tbody></table>}
+          {plan.automaticPlan.length > 0 && <table className="data-table"><thead><tr><th>Employee</th><th>Period</th><th>Hours/day</th><th>Total</th></tr></thead><tbody>{plan.automaticPlan.map(item => <tr key={item.employeeId}><td><strong>{item.employeeName}</strong></td><td>{formatDate(item.allocationStartDate)} - {formatDate(item.allocationEndDate)}</td><td>{formatNumber(item.hoursPerDay)}h</td><td>{formatNumber(item.totalHours)}h</td></tr>)}</tbody></table>}
         </>}
 
         {form.allocationMode === 'Manual' && <>
@@ -152,7 +152,8 @@ export function CreateTaskPage() {
           <table className="data-table"><thead><tr><th>Select</th><th>Employee</th><th>Matched skill</th><th>Current load</th><th>Daily free</th><th>Safe total</th><th>Hours/day</th></tr></thead><tbody>{plan.candidates.map(candidate => {
             const eligible = candidate.maxAssignableHours > 0;
             const selected = manualHours[candidate.employeeId] !== undefined;
-            return <tr key={candidate.employeeId}><td><input type="checkbox" disabled={!eligible} checked={selected} onChange={e => setManualHours(current => { const next = { ...current }; if (e.target.checked) next[candidate.employeeId] = String(Math.min(candidate.minimumDailyAvailableHours, 4)); else delete next[candidate.employeeId]; return next; })} /></td><td><strong>{candidate.fullName}</strong><br/><span className="muted">{candidate.status}</span></td><td>{candidate.matchedSkillName ? `${candidate.matchedSkillName} ${candidate.matchedSkillLevel ?? ''}` : form.requiredSkillId ? '-' : 'Not required'}</td><td>{formatNumber(candidate.existingAllocatedHours)}h / {formatNumber(candidate.capacityHours)}h</td><td>{formatNumber(candidate.minimumDailyAvailableHours)}h/day</td><td>{formatNumber(candidate.maxAssignableHours)}h</td><td>{selected ? <input className="field compact-field" type="number" min="0.01" max={candidate.minimumDailyAvailableHours} step="0.01" value={manualHours[candidate.employeeId]} onChange={e => setManualHours(current => ({ ...current, [candidate.employeeId]: e.target.value }))} /> : '-'}</td></tr>;
+            const maximumDailyHours = Math.min(8, Math.floor(candidate.minimumDailyAvailableHours));
+            return <tr key={candidate.employeeId}><td><input type="checkbox" disabled={!eligible} checked={selected} onChange={e => setManualHours(current => { const next = { ...current }; if (e.target.checked) next[candidate.employeeId] = String(Math.min(maximumDailyHours, 4)); else delete next[candidate.employeeId]; return next; })} /></td><td><strong>{candidate.fullName}</strong><br/><span className="muted">{candidate.status}</span></td><td>{candidate.matchedSkillName ? `${candidate.matchedSkillName} ${candidate.matchedSkillLevel ?? ''}` : form.requiredSkillId ? '-' : 'Not required'}</td><td>{formatNumber(candidate.existingAllocatedHours)}h / {formatNumber(candidate.capacityHours)}h</td><td>{formatNumber(candidate.minimumDailyAvailableHours)}h/day</td><td>{formatNumber(candidate.maxAssignableHours)}h</td><td>{selected ? <input className="field compact-field" type="number" min="1" max={maximumDailyHours} step="1" value={manualHours[candidate.employeeId]} onChange={e => { const value = Math.max(1, Math.min(maximumDailyHours, Math.round(Number(e.target.value) || 1))); setManualHours(current => ({ ...current, [candidate.employeeId]: String(value) })); }} /> : '-'}</td></tr>;
           })}</tbody></table>
         </>}
       </div>}

@@ -404,6 +404,17 @@
   background: #dc2626;
 }
 
+.delete-confirmation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.delete-confirmation p {
+  margin: 6px 0 0;
+}
+
 .timesheet-pending { color: #92400e; background: #fef3c7; }
 .timesheet-approved, .task-completed { color: #166534; background: #dcfce7; }
 .timesheet-rejected, .task-cancelled, .task-blocked { color: #991b1b; background: #fee2e2; }
@@ -478,7 +489,13 @@
   }
 
   .notification-item,
-  .dashboard-alert {
+  .dashboard-alert,
+  .delete-confirmation {
     grid-template-columns: 1fr;
+  }
+
+  .delete-confirmation {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

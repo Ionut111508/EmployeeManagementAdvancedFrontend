@@ -57,6 +57,7 @@ export type TaskStatus = 'Backlog' | 'Ready' | 'InProgress' | 'Blocked' | 'Compl
 export type TimesheetStatus = 'Pending' | 'Approved' | 'Rejected';
 export interface TaskItem { projectId: string; taskId: string; taskName: string; estimatedHours?: number | null; descriptionId?: string | null; requiredSkillId?: string | null; plannedStartDate?: string | null; plannedEndDate?: string | null; status: TaskStatus; project?: Project | null; description?: TaskDescription | null; requiredSkill?: Skill | null; }
 export interface TaskCreate { projectId: string; taskId: string; taskName: string; estimatedHours: number; descriptionId: string; requiredSkillId?: string | null; plannedStartDate?: string | null; plannedEndDate?: string | null; }
+export interface TaskDeletionResult { taskId: string; taskName: string; deletedAllocations: number; releasedEmployees: string[]; }
 export interface Allocation { employeeId: string; projectId: string; taskId: string; employeeName?: string | null; projectName?: string | null; taskName?: string | null; requiredSkillId?: string | null; requiredSkillName?: string | null; requiredSkillLevel?: string | null; allocationStartDate: string; allocationEndDate?: string | null; allocatedHours: number; totalAllocationHours?: number | null; employee?: Employee | null; taskItem?: TaskItem | null; }
 export interface AllocationCreate { employeeId: string; projectId: string; taskId: string; allocationStartDate: string; allocationEndDate?: string | null; allocatedHours: number; }
 export interface AutoAllocationCreate { projectId: string; taskId: string; startDate: string; endDate?: string | null; hoursPerDay: number; skillId?: string | null; }
@@ -86,7 +87,7 @@ export interface AllocationAvailability {
   status: string;
 }
 export interface TaskPlanningCandidate extends AllocationAvailability { maxAssignableHours: number; }
-export interface PlannedAllocation { employeeId: string; employeeName: string; hoursPerDay: number; totalHours: number; }
+export interface PlannedAllocation { employeeId: string; employeeName: string; hoursPerDay: number; totalHours: number; allocationStartDate: string; allocationEndDate: string; }
 export interface TaskPlanningPreviewRequest { projectId: string; estimatedHours: number; requiredSkillId?: string | null; plannedStartDate: string; plannedEndDate: string; }
 export interface TaskPlanningPreview {
   plannedStartDate: string;
@@ -99,7 +100,7 @@ export interface TaskPlanningPreview {
   candidates: TaskPlanningCandidate[];
   automaticPlan: PlannedAllocation[];
 }
-export interface ManualTaskAllocation { employeeId: string; hoursPerDay: number; }
+export interface ManualTaskAllocation { employeeId: string; hoursPerDay: number; allocationStartDate?: string | null; allocationEndDate?: string | null; }
 export interface CreatePlannedTaskRequest extends TaskPlanningPreviewRequest {
   taskId: string;
   taskName: string;
@@ -165,6 +166,7 @@ export interface EmployeeDepartment { employeeId: string; departmentId: string; 
 export interface EmployeeDepartmentCreate { employeeId: string; departmentId: string; startDate: string; endDate?: string | null; }
 export interface EmployeeLeave { employeeLeaveId: string; employeeId: string; employeeName: string; startDate: string; endDate: string; leaveType: string; reason?: string | null; replacementEmployeeId?: string | null; replacementEmployeeName?: string | null; }
 export interface EmployeeLeaveCreate { employeeId: string; startDate: string; endDate: string; leaveType: string; reason?: string | null; replacementEmployeeId?: string | null; }
+export interface EmployeeLeaveCreateResult { employeeLeaveId: string; impactedAllocations: number; coveredAllocations: number; }
 export interface EmployeeLeaveImpact {
   projectId: string;
   projectName: string;

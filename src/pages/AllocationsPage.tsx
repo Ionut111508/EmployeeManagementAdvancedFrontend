@@ -11,9 +11,9 @@ import { addDays, dateInputValue, formatDate, formatNumber, parseLocalDate } fro
 
 function CapacityTable({ items, startDate, endDate, emptyText }: { items: AllocationAvailability[]; startDate: string; endDate: string; emptyText: string }) {
   if (items.length === 0) return <Status empty emptyText={emptyText} />;
-  return <table className="data-table capacity-table"><thead><tr><th>Employee</th><th>Available interval</th><th>Free per day</th><th>Current load</th><th>Free in interval</th><th>Project relation</th></tr></thead><tbody>{items.map(item => {
+  return <table className="data-table capacity-table"><thead><tr><th>Employee</th><th>Available interval</th><th>Free per day</th><th>Current load</th></tr></thead><tbody>{items.map(item => {
     const averageAllocated = item.workingDays > 0 ? item.existingAllocatedHours / item.workingDays : 0;
-    return <tr key={item.employeeId}><td><strong>{item.fullName}</strong></td><td>{formatDate(startDate)} - {formatDate(endDate)}</td><td><span className="capacity-hours">{formatNumber(item.minimumDailyAvailableHours)}h/day</span><small>of {formatNumber(item.workNormHoursPerDay)}h/day</small></td><td>{averageAllocated > 0 ? `${formatNumber(averageAllocated)}h/day allocated` : 'No current allocation'}</td><td>{formatNumber(item.availableHours)}h</td><td>{item.isAssignedToProject ? 'Already on project' : 'Available for project'}</td></tr>;
+    return <tr key={item.employeeId}><td><strong>{item.fullName}</strong></td><td>{formatDate(startDate)} - {formatDate(endDate)}</td><td><span className="capacity-hours">{formatNumber(item.minimumDailyAvailableHours)}h/day</span><small>of {formatNumber(item.workNormHoursPerDay)}h/day</small></td><td>{averageAllocated > 0 ? `${formatNumber(averageAllocated)}h/day allocated` : 'Completely free'}</td></tr>;
   })}</tbody></table>;
 }
 

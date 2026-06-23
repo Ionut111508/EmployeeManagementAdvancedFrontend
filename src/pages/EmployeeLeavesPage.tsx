@@ -27,7 +27,11 @@ export function EmployeeLeavesPage() {
     setMessage(null);
     try {
       const created = await api.createEmployeeLeave({ employeeId: isEmployee ? session!.employeeId : form.employeeId, startDate: form.startDate, endDate: form.endDate, leaveType: form.leaveType, reason: form.reason || null, replacementEmployeeId: isEmployee ? null : form.replacementEmployeeId || null });
-      setMessage('Leave registered. Auto allocation will skip this employee in the selected period.');
+      setMessage(created.impactedAllocations === 0
+        ? 'Leave registered. No active task allocation overlaps this period.'
+        : created.coveredAllocations > 0
+          ? `Leave registered. ${created.coveredAllocations} task allocation(s) will be covered by the selected replacement.`
+          : `Leave registered. ${created.impactedAllocations} task allocation(s) now require replanning or a replacement.`);
       setRefreshKey(current => current + 1);
       if (!isEmployee) setSelectedLeaveId(created.employeeLeaveId);
       setForm(current => ({ ...current, employeeId: isEmployee ? current.employeeId : '', reason: '', replacementEmployeeId: '' }));

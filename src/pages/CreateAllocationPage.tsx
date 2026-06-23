@@ -36,6 +36,10 @@ export function CreateAllocationPage() {
     });
   }, [selectedTask?.projectId, selectedTask?.taskId, selectedTask?.requiredSkillId, form.startDate, form.endDate, form.hoursPerDay, form.skillId, today]);
   const eligibleCandidates = useMemo(() => (candidates.data ?? []).filter(item => item.canTakeRequestedHours), [candidates.data]);
+  const selectedCandidate = useMemo(() => (candidates.data ?? []).find(item => item.employeeId === form.employeeId), [candidates.data, form.employeeId]);
+  const maximumHoursPerDay = selectedCandidate
+    ? Math.max(1, Math.min(8, Math.floor(selectedCandidate.minimumDailyAvailableHours), Math.floor(selectedCandidate.workNormHoursPerDay)))
+    : 8;
   const capacityOnlyCandidates = useMemo(() => (candidates.data ?? []).filter(item =>
     !item.canTakeRequestedHours && !item.meetsSkillRequirement && !item.isOnLeave && item.minimumDailyAvailableHours > 0), [candidates.data]);
 
@@ -59,6 +63,11 @@ export function CreateAllocationPage() {
       skillId: task.requiredSkillId ?? ''
     }));
   }, [tasks.data, allocatableTasks, searchParams, form.taskId, today]);
+
+  useEffect(() => {
+    if (form.employeeId && !candidates.loading && !eligibleCandidates.some(candidate => candidate.employeeId === form.employeeId))
+      setForm(current => ({ ...current, employeeId: '' }));
+  }, [form.employeeId, candidates.loading, eligibleCandidates]);
 
   function selectTask(value: string) {
     const [projectId, taskId] = value.split('|');
@@ -135,7 +144,7 @@ export function CreateAllocationPage() {
       <label>Task<select className="field" value={`${form.projectId}|${form.taskId}`} onChange={e => selectTask(e.target.value)} required><option value="|">Select task</option>{allocatableTasks.map(t => <option key={`${t.projectId}-${t.taskId}`} value={`${t.projectId}|${t.taskId}`}>{t.project?.projectName ?? t.projectId} - {t.taskName}</option>)}</select></label>
       <label>Start date<input className="field" type="date" min={today} value={form.startDate} onChange={e => { setForm({ ...form, startDate: e.target.value, endDate: form.endDate < e.target.value ? e.target.value : form.endDate, employeeId: '' }); setSimulation(null); }} required /></label>
       <label>End date<input className="field" type="date" min={form.startDate || today} value={form.endDate} onChange={e => { setForm({ ...form, endDate: e.target.value, employeeId: '' }); setSimulation(null); }} /></label>
-      <label>Hours per day<input className="field" type="number" min="0.5" max="12" step="0.5" value={form.hoursPerDay} onChange={e => { setForm({ ...form, hoursPerDay: e.target.value, employeeId: '' }); setSimulation(null); }} required /></label>
+      <label>Hours per day<input className="field" type="number" min="1" max={maximumHoursPerDay} step="1" value={form.hoursPerDay} onChange={e => { const value = Math.max(1, Math.min(maximumHoursPerDay, Math.round(Number(e.target.value) || 1))); setForm({ ...form, hoursPerDay: String(value) }); setSimulation(null); }} required /></label>
       <label>Required skill<select className="field" value={form.skillId} onChange={e => { setForm({ ...form, skillId: e.target.value, employeeId: '' }); setSimulation(null); }}>
         <option value="">{selectedTask?.requiredSkill ? `Use task skill: ${selectedTask.requiredSkill.skillName} ${selectedTask.requiredSkill.skillLevel ?? ''}` : 'Any skill'}</option>
         {(skills.data ?? []).map(s => <option key={s.skillId} value={s.skillId}>{s.skillName} {s.skillLevel ? `- ${s.skillLevel}` : ''}</option>)}
