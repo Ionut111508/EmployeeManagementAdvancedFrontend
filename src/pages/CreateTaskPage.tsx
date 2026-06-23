@@ -120,8 +120,8 @@ export function CreateTaskPage() {
           {(skills.data ?? []).map(skill => <option key={skill.skillId} value={skill.skillId}>{skill.skillName} {skill.skillLevel ? `- ${skill.skillLevel}` : ''}</option>)}
         </select>
         <input className="field" placeholder="Description ID" value={form.descriptionId} onChange={e => setForm({ ...form, descriptionId: e.target.value })} required />
-        <input className="field" type="date" value={form.plannedStartDate} onChange={e => updatePlanningField('plannedStartDate', e.target.value)} required />
-        <input className="field" type="date" value={form.plannedEndDate} onChange={e => updatePlanningField('plannedEndDate', e.target.value)} required />
+        <label>Planned start<input className="field" type="date" min={today} value={form.plannedStartDate} onChange={e => { updatePlanningField('plannedStartDate', e.target.value); if (form.plannedEndDate < e.target.value) updatePlanningField('plannedEndDate', e.target.value); }} required /></label>
+        <label>Planned end<input className="field" type="date" min={form.plannedStartDate || today} value={form.plannedEndDate} onChange={e => updatePlanningField('plannedEndDate', e.target.value)} required /></label>
         <textarea className="field field-span" placeholder="Task description" value={form.descriptionText} onChange={e => setForm({ ...form, descriptionText: e.target.value })} required />
         <div className="field-span filter-bar">
           <label><input type="radio" checked={form.allocationMode === 'Automatic'} onChange={() => updatePlanningField('allocationMode', 'Automatic')} /> Automatic allocation</label>

@@ -4,7 +4,7 @@ import { api } from '../api/endpoints';
 import { useAuth } from '../auth/AuthContext';
 import { PageHeader } from '../components/ui/PageHeader';
 import { useAsync } from '../hooks/useAsync';
-import { formatNumber } from '../utils/format';
+import { dateInputValue, formatNumber } from '../utils/format';
 import type { AllocationAvailability, AllocationSimulation } from '../types/domain';
 
 export function CreateAllocationPage() {
@@ -20,45 +20,58 @@ export function CreateAllocationPage() {
   const [simulation, setSimulation] = useState<AllocationSimulation | null>(null);
   const [planningLoading, setPlanningLoading] = useState(false);
   const [form, setForm] = useState({ employeeId: '', projectId: '', taskId: '', startDate: '', endDate: '', hoursPerDay: '4', skillId: '' });
+  const today = dateInputValue();
+  const allocatableTasks = useMemo(() => (tasks.data ?? []).filter(task =>
+    (!task.plannedEndDate || task.plannedEndDate.slice(0, 10) >= today) && task.status !== 'Completed' && task.status !== 'Cancelled'), [tasks.data, today]);
 
   const selectedTask = useMemo(() => (tasks.data ?? []).find(task => task.projectId === form.projectId && task.taskId === form.taskId), [tasks.data, form.projectId, form.taskId]);
   const candidates = useAsync(() => {
-    if (automatic || !selectedTask || !form.startDate || Number(form.hoursPerDay) <= 0) return Promise.resolve([] as AllocationAvailability[]);
+    if (!selectedTask || !form.startDate || form.startDate < today || Number(form.hoursPerDay) <= 0) return Promise.resolve([] as AllocationAvailability[]);
     return api.allocationAvailability({
       projectId: selectedTask.projectId,
       skillId: form.skillId || selectedTask.requiredSkillId || null,
       startDate: form.startDate,
       endDate: form.endDate || form.startDate,
       requiredHoursPerDay: Number(form.hoursPerDay)
-    }).then(items => items.filter(item => item.canTakeRequestedHours));
-  }, [automatic, selectedTask?.projectId, selectedTask?.taskId, selectedTask?.requiredSkillId, form.startDate, form.endDate, form.hoursPerDay, form.skillId]);
+    });
+  }, [selectedTask?.projectId, selectedTask?.taskId, selectedTask?.requiredSkillId, form.startDate, form.endDate, form.hoursPerDay, form.skillId, today]);
+  const eligibleCandidates = useMemo(() => (candidates.data ?? []).filter(item => item.canTakeRequestedHours), [candidates.data]);
+  const capacityOnlyCandidates = useMemo(() => (candidates.data ?? []).filter(item =>
+    !item.canTakeRequestedHours && !item.meetsSkillRequirement && !item.isOnLeave && item.minimumDailyAvailableHours > 0), [candidates.data]);
 
   useEffect(() => {
     if (!tasks.data || form.taskId) return;
     const projectId = searchParams.get('projectId');
     const taskId = searchParams.get('taskId');
-    const task = tasks.data.find(item => item.projectId === projectId && item.taskId === taskId);
-    if (!task) return;
+    const task = allocatableTasks.find(item => item.projectId === projectId && item.taskId === taskId);
+    if (!task) {
+      if (projectId && taskId) setMessage('This task is completed, cancelled, or its planned period is in the past. New allocations are not allowed.');
+      return;
+    }
+    const startDate = task.plannedStartDate?.slice(0, 10) && task.plannedStartDate.slice(0, 10) > today ? task.plannedStartDate.slice(0, 10) : today;
+    const endDate = task.plannedEndDate?.slice(0, 10) ?? startDate;
     setForm(current => ({
       ...current,
       projectId: task.projectId,
       taskId: task.taskId,
-      startDate: task.plannedStartDate?.slice(0, 10) ?? current.startDate,
-      endDate: task.plannedEndDate?.slice(0, 10) ?? current.endDate,
+      startDate,
+      endDate: endDate < startDate ? startDate : endDate,
       skillId: task.requiredSkillId ?? ''
     }));
-  }, [tasks.data, searchParams, form.taskId]);
+  }, [tasks.data, allocatableTasks, searchParams, form.taskId, today]);
 
   function selectTask(value: string) {
     const [projectId, taskId] = value.split('|');
-    const task = (tasks.data ?? []).find(item => item.projectId === projectId && item.taskId === taskId);
+    const task = allocatableTasks.find(item => item.projectId === projectId && item.taskId === taskId);
+    const startDate = task?.plannedStartDate?.slice(0, 10) && task.plannedStartDate.slice(0, 10) > today ? task.plannedStartDate.slice(0, 10) : today;
+    const endDate = task?.plannedEndDate?.slice(0, 10) ?? startDate;
     setForm(current => ({
       ...current,
       projectId,
       taskId,
       employeeId: '',
-      startDate: task?.plannedStartDate?.slice(0, 10) ?? current.startDate,
-      endDate: task?.plannedEndDate?.slice(0, 10) ?? current.endDate,
+      startDate,
+      endDate: endDate < startDate ? startDate : endDate,
       skillId: task?.requiredSkillId ?? ''
     }));
     setSimulation(null);
@@ -119,15 +132,15 @@ export function CreateAllocationPage() {
     <PageHeader eyebrow="Planning" title="Allocate employees to a task" description="Choose a task and period, then assign a qualified available employee or let the system allocate automatically." actions={<Link className="btn secondary" to="/tasks">Back to tasks</Link>} />
     <form className="card form-grid" onSubmit={submit}>
       <label>Allocation mode<select className="field" value={automatic ? 'yes' : 'no'} onChange={e => { setAutomatic(e.target.value === 'yes'); setForm(current => ({ ...current, employeeId: '' })); setSimulation(null); }}><option value="no">Manual allocation</option><option value="yes">Automatic allocation</option></select></label>
-      <label>Task<select className="field" value={`${form.projectId}|${form.taskId}`} onChange={e => selectTask(e.target.value)} required><option value="|">Select task</option>{(tasks.data ?? []).map(t => <option key={`${t.projectId}-${t.taskId}`} value={`${t.projectId}|${t.taskId}`}>{t.project?.projectName ?? t.projectId} - {t.taskName}</option>)}</select></label>
-      <label>Start date<input className="field" type="date" value={form.startDate} onChange={e => { setForm({ ...form, startDate: e.target.value, employeeId: '' }); setSimulation(null); }} required /></label>
-      <label>End date<input className="field" type="date" value={form.endDate} onChange={e => { setForm({ ...form, endDate: e.target.value, employeeId: '' }); setSimulation(null); }} /></label>
+      <label>Task<select className="field" value={`${form.projectId}|${form.taskId}`} onChange={e => selectTask(e.target.value)} required><option value="|">Select task</option>{allocatableTasks.map(t => <option key={`${t.projectId}-${t.taskId}`} value={`${t.projectId}|${t.taskId}`}>{t.project?.projectName ?? t.projectId} - {t.taskName}</option>)}</select></label>
+      <label>Start date<input className="field" type="date" min={today} value={form.startDate} onChange={e => { setForm({ ...form, startDate: e.target.value, endDate: form.endDate < e.target.value ? e.target.value : form.endDate, employeeId: '' }); setSimulation(null); }} required /></label>
+      <label>End date<input className="field" type="date" min={form.startDate || today} value={form.endDate} onChange={e => { setForm({ ...form, endDate: e.target.value, employeeId: '' }); setSimulation(null); }} /></label>
       <label>Hours per day<input className="field" type="number" min="0.5" max="12" step="0.5" value={form.hoursPerDay} onChange={e => { setForm({ ...form, hoursPerDay: e.target.value, employeeId: '' }); setSimulation(null); }} required /></label>
       <label>Required skill<select className="field" value={form.skillId} onChange={e => { setForm({ ...form, skillId: e.target.value, employeeId: '' }); setSimulation(null); }}>
         <option value="">{selectedTask?.requiredSkill ? `Use task skill: ${selectedTask.requiredSkill.skillName} ${selectedTask.requiredSkill.skillLevel ?? ''}` : 'Any skill'}</option>
         {(skills.data ?? []).map(s => <option key={s.skillId} value={s.skillId}>{s.skillName} {s.skillLevel ? `- ${s.skillLevel}` : ''}</option>)}
       </select></label>
-      {!automatic && <label>Available employee<select className="field" value={form.employeeId} onChange={e => { setForm({ ...form, employeeId: e.target.value }); setSimulation(null); }} required><option value="">{candidates.loading ? 'Checking availability...' : 'Select qualified employee'}</option>{(candidates.data ?? []).map(candidate => <option key={candidate.employeeId} value={candidate.employeeId}>{candidate.fullName} - {formatNumber(candidate.minimumDailyAvailableHours)}h/day free</option>)}</select></label>}
+      {!automatic && <label>Eligible employee<select className="field" value={form.employeeId} onChange={e => { setForm({ ...form, employeeId: e.target.value }); setSimulation(null); }} required><option value="">{candidates.loading ? 'Checking availability...' : 'Select qualified employee'}</option>{eligibleCandidates.map(candidate => <option key={candidate.employeeId} value={candidate.employeeId}>{candidate.fullName} - {formatNumber(candidate.minimumDailyAvailableHours)}h/day free</option>)}</select></label>}
       <button className="btn secondary" type="button" disabled={planningLoading || !hasPermission('allocations.simulate')} onClick={simulate}>{planningLoading ? 'Simulating...' : 'Simulate availability'}</button>
       <button className="btn" disabled={!automatic && !form.employeeId}>Save allocation</button>
       {message && <p className="muted form-message">{message}</p>}
@@ -140,7 +153,12 @@ export function CreateAllocationPage() {
       <span className="badge">Required skill: {selectedTask.requiredSkill ? `${selectedTask.requiredSkill.skillName} ${selectedTask.requiredSkill.skillLevel ?? ''}` : 'None'}</span>
     </div>}
 
-    {!automatic && selectedTask && !candidates.loading && candidates.data?.length === 0 && <div className="status-card status-error"><strong>No eligible employees found</strong><p>Change the period or daily hours, or verify that employees have the required skill.</p></div>}
+    {!automatic && selectedTask && !candidates.loading && eligibleCandidates.length === 0 && <div className="status-card status-error"><strong>No eligible employees found</strong><p>No employee currently combines the required skill with enough capacity for this allocation.</p></div>}
+
+    {!candidates.loading && capacityOnlyCandidates.length > 0 && <div className="table-card capacity-warning">
+      <div className="section-heading"><div><h2>Available capacity without the required skill</h2><p className="muted">These employees have free working capacity, but cannot be allocated until the skill requirement is changed or their skills are updated.</p></div><span className="badge">{capacityOnlyCandidates.length}</span></div>
+      <table className="data-table"><thead><tr><th>Employee</th><th>Free capacity</th><th>Daily availability</th><th>Required skill</th><th>Matched skill</th></tr></thead><tbody>{capacityOnlyCandidates.map(candidate => <tr key={candidate.employeeId}><td><strong>{candidate.fullName}</strong></td><td>{formatNumber(candidate.availableHours)}h</td><td>{formatNumber(candidate.minimumDailyAvailableHours)}h/day</td><td>{candidate.requiredSkillName ? `${candidate.requiredSkillName} ${candidate.requiredSkillLevel ?? ''}` : '-'}</td><td><span className="badge timesheet-rejected">Skill not matched</span></td></tr>)}</tbody></table>
+    </div>}
 
     {simulation && <div className="table-card">
       <h2>Simulation result</h2>

@@ -6,7 +6,7 @@ import { useAuth } from '../auth/AuthContext';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Status } from '../components/ui/Status';
 import { useAsync } from '../hooks/useAsync';
-import type { TaskItem } from '../types/domain';
+import type { Allocation, TaskItem } from '../types/domain';
 import { addDays, dateInputValue, formatDate, formatNumber } from '../utils/format';
 
 export function TasksPage() {
@@ -69,14 +69,22 @@ export function TasksPage() {
     </div>}
     <Status loading={loading || allocations.loading} error={error ?? allocations.error} empty={filteredTasks.length === 0} />
     {data && session?.role === 'Employee' && <>
-      <TaskTable title="Active tasks" tasks={employeeTaskGroups.active} emptyText="You have no active task allocation today." />
-      {employeeTaskGroups.upcoming.length > 0 && <TaskTable title="Upcoming tasks" tasks={employeeTaskGroups.upcoming} emptyText="" />}
-      <TaskTable title="Past tasks" tasks={employeeTaskGroups.past} emptyText="You have no previous task allocations." />
+      <EmployeeTaskTable title="Active tasks" tasks={employeeTaskGroups.active} allocations={allocations.data ?? []} emptyText="You have no active task allocation today." />
+      {employeeTaskGroups.upcoming.length > 0 && <EmployeeTaskTable title="Upcoming tasks" tasks={employeeTaskGroups.upcoming} allocations={allocations.data ?? []} emptyText="" />}
+      <EmployeeTaskTable title="Past tasks" tasks={employeeTaskGroups.past} allocations={allocations.data ?? []} emptyText="You have no previous task allocations." />
     </>}
     {data && session?.role !== 'Employee' && <TaskTable title="Visible tasks" tasks={filteredTasks} emptyText="No tasks match the selected filters." canAllocate />}
   </section>;
 }
 
+function EmployeeTaskTable({ title, tasks, allocations, emptyText }: { title: string; tasks: TaskItem[]; allocations: Allocation[]; emptyText: string }) {
+  return <div className="table-card"><div className="gantt-header"><h2>{title}</h2><span className="badge">{tasks.length}</span></div>{tasks.length === 0 ? <p className="muted">{emptyText}</p> : <table className="data-table"><thead><tr><th>Task</th><th>Project</th><th>My allocation</th><th>Allocation period</th><th>Status</th><th>Action</th></tr></thead><tbody>{tasks.map(task => {
+    const allocation = allocations.find(item => item.projectId === task.projectId && item.taskId === task.taskId);
+    return <tr key={`${task.projectId}-${task.taskId}`}><td><strong>{task.taskName}</strong></td><td>{task.project?.projectName ?? allocation?.projectName ?? '-'}</td><td><span className="badge allocation-hours">{formatNumber(allocation?.allocatedHours)}h/day</span></td><td>{formatDate(allocation?.allocationStartDate)} - {formatDate(allocation?.allocationEndDate ?? allocation?.allocationStartDate)}</td><td><span className={`badge task-${task.status.toLowerCase()}`}>{task.status}</span></td><td><Link className="btn-link" to={'/task-view/' + task.projectId + '/' + task.taskId}>View</Link></td></tr>;
+  })}</tbody></table>}</div>;
+}
+
 function TaskTable({ title, tasks, emptyText, canAllocate = false }: { title: string; tasks: TaskItem[]; emptyText: string; canAllocate?: boolean }) {
-  return <div className="table-card"><div className="gantt-header"><h2>{title}</h2><span className="badge">{tasks.length}</span></div>{tasks.length === 0 ? <p className="muted">{emptyText}</p> : <table className="data-table"><thead><tr><th>Task</th><th>Project</th><th>Status</th><th>Planned period</th><th>Description</th><th>Required skill</th><th>Estimated</th><th>Action</th></tr></thead><tbody>{tasks.map(t => <tr key={`${t.projectId}-${t.taskId}`}><td><strong>{t.taskName}</strong></td><td>{t.project?.projectName ?? '-'}</td><td><span className={`badge task-${t.status.toLowerCase()}`}>{t.status}</span></td><td>{formatDate(t.plannedStartDate)} - {formatDate(t.plannedEndDate)}</td><td>{t.description?.taskDescriptionText ?? '-'}</td><td>{t.requiredSkill ? `${t.requiredSkill.skillName} ${t.requiredSkill.skillLevel ?? ''}` : '-'}</td><td><span className="badge">{formatNumber(t.estimatedHours)}h</span></td><td><div className="table-actions"><Link className="btn-link" to={'/task-view/' + t.projectId + '/' + t.taskId}>View</Link>{canAllocate && <Link className="btn secondary" to={`/allocations/create?projectId=${encodeURIComponent(t.projectId)}&taskId=${encodeURIComponent(t.taskId)}`}>Allocate</Link>}</div></td></tr>)}</tbody></table>}</div>;
+  const today = dateInputValue();
+  return <div className="table-card"><div className="gantt-header"><h2>{title}</h2><span className="badge">{tasks.length}</span></div>{tasks.length === 0 ? <p className="muted">{emptyText}</p> : <table className="data-table"><thead><tr><th>Task</th><th>Project</th><th>Status</th><th>Planned period</th><th>Description</th><th>Required skill</th><th>Estimated</th><th>Action</th></tr></thead><tbody>{tasks.map(t => { const canAllocateTask = canAllocate && (!t.plannedEndDate || t.plannedEndDate.slice(0, 10) >= today) && t.status !== 'Completed' && t.status !== 'Cancelled'; return <tr key={`${t.projectId}-${t.taskId}`}><td><strong>{t.taskName}</strong></td><td>{t.project?.projectName ?? '-'}</td><td><span className={`badge task-${t.status.toLowerCase()}`}>{t.status}</span></td><td>{formatDate(t.plannedStartDate)} - {formatDate(t.plannedEndDate)}</td><td>{t.description?.taskDescriptionText ?? '-'}</td><td>{t.requiredSkill ? `${t.requiredSkill.skillName} ${t.requiredSkill.skillLevel ?? ''}` : '-'}</td><td><span className="badge">{formatNumber(t.estimatedHours)}h</span></td><td><div className="table-actions"><Link className="btn-link" to={'/task-view/' + t.projectId + '/' + t.taskId}>View</Link>{canAllocateTask && <Link className="btn secondary" to={`/allocations/create?projectId=${encodeURIComponent(t.projectId)}&taskId=${encodeURIComponent(t.taskId)}`}>Allocate</Link>}</div></td></tr>; })}</tbody></table>}</div>;
 }

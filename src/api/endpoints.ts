@@ -1,5 +1,5 @@
 import { http } from './http';
-import type { Account, AccountCreate, AccountUpdate, Allocation, AllocationAvailability, AllocationAvailabilityRequest, AllocationCreate, AllocationSimulation, AllocationSimulationRequest, AppNotification, AuditLog, AutoAllocationCreate, AutoAllocationResult, CreatePlannedTaskRequest, CreatePlannedTaskResponse, Department, Employee, EmployeeCreate, EmployeeDepartment, EmployeeDepartmentCreate, EmployeeLeave, EmployeeLeaveCreate, EmployeeLeavePlan, EmployeeRole, EmployeeRoleUpdate, EmployeeSkill, EmployeeSkillCreate, LoginRequest, LoginResponse, Project, ProjectSummary, ResourcePlanningOverview, Skill, TaskComment, TaskCreate, TaskDescription, TaskDescriptionCreate, TaskItem, TaskPlanningPreview, TaskPlanningPreviewRequest, TaskStaffing, TaskStatus, Timesheet, TimesheetReview, UserAccess, WorkNorm } from '../types/domain';
+import type { Account, AccountCreate, AccountUpdate, Allocation, AllocationAvailability, AllocationAvailabilityRequest, AllocationCreate, AllocationSimulation, AllocationSimulationRequest, AppNotification, AuditLog, AutoAllocationCreate, AutoAllocationResult, CreatePlannedTaskRequest, CreatePlannedTaskResponse, Department, Employee, EmployeeCreate, EmployeeDepartment, EmployeeDepartmentCreate, EmployeeLeave, EmployeeLeaveCreate, EmployeeLeavePlan, EmployeeRole, EmployeeRoleUpdate, EmployeeSkill, EmployeeSkillCreate, LoginRequest, LoginResponse, Project, ProjectCreate, ProjectSummary, ResourcePlanningOverview, Skill, TaskComment, TaskCreate, TaskDescription, TaskDescriptionCreate, TaskItem, TaskPlanningPreview, TaskPlanningPreviewRequest, TaskStaffing, TaskStatus, Timesheet, TimesheetReview, UserAccess, WorkNorm } from '../types/domain';
 
 export const api = {
   login: (payload: LoginRequest) => http.post<LoginResponse>('/Auth/login', payload).then(r => r.data),
@@ -8,6 +8,7 @@ export const api = {
   projects: () => http.get<Project[]>('/Projects').then(r => r.data),
   projectsVisibleTo: (employeeId: string) => http.get<Project[]>(`/Projects/visible-to/${employeeId}`).then(r => r.data),
   projectById: (id: string) => http.get<Project>(`/Projects/${id}`).then(r => r.data),
+  createProject: (payload: ProjectCreate) => http.post<Project>('/Projects', payload).then(r => r.data),
 
   accounts: () => http.get<Account[]>('/Accounts').then(r => r.data),
   createAccount: (payload: AccountCreate) => http.post<Account>('/Accounts', payload).then(r => r.data),
@@ -57,7 +58,7 @@ export const api = {
   employeeSkillsByEmployee: (employeeId: string) => http.get<EmployeeSkill[]>(`/EmployeeSkills/employee/${employeeId}`).then(r => r.data),
   createEmployeeSkill: (payload: EmployeeSkillCreate) => http.post<EmployeeSkill>('/EmployeeSkills', payload).then(r => r.data),
   employeeLeaves: () => http.get<EmployeeLeave[]>('/EmployeeLeaves').then(r => r.data),
-  createEmployeeLeave: (payload: EmployeeLeaveCreate) => http.post('/EmployeeLeaves', payload).then(r => r.data),
+  createEmployeeLeave: (payload: EmployeeLeaveCreate) => http.post<{ employeeLeaveId: string }>('/EmployeeLeaves', payload).then(r => r.data),
   employeeLeavePlan: (leaveId: string) => http.get<EmployeeLeavePlan>(`/EmployeeLeaves/${leaveId}/plan`).then(r => r.data),
   workNorms: () => http.get<WorkNorm[]>('/WorkNorms').then(r => r.data),
   taskComments: () => http.get<TaskComment[]>('/TaskComments').then(r => r.data),

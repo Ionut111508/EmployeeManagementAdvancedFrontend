@@ -6,7 +6,7 @@ import { useAuth } from '../auth/AuthContext';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Status } from '../components/ui/Status';
 import { useAsync } from '../hooks/useAsync';
-import { formatDate, formatNumber } from '../utils/format';
+import { dateInputValue, formatDate, formatNumber } from '../utils/format';
 import type { TaskStatus } from '../types/domain';
 
 const transitions: Record<TaskStatus, TaskStatus[]> = {
@@ -41,6 +41,7 @@ export function TaskDetailsPage() {
   const totalAllocated = taskAllocations.reduce((sum, item) => sum + item.allocatedHours, 0);
   const totalWorked = taskTimesheets.reduce((sum, item) => sum + item.workedHours, 0);
   const canManageStatus = hasPermission('tasks.status.manage') || hasPermission('tasks.status.manage.managed');
+  const canAllocateTask = task && (!task.plannedEndDate || task.plannedEndDate.slice(0, 10) >= dateInputValue()) && task.status !== 'Completed' && task.status !== 'Cancelled';
 
   async function changeStatus(status: TaskStatus) {
     if (!projectId || !taskId) return;
@@ -54,7 +55,7 @@ export function TaskDetailsPage() {
   }
 
   return <section className="page-stack">
-    <PageHeader eyebrow="Task details" title={task?.taskName ?? 'Task details'} description="Task, project, estimate, allocation, and timesheet information." actions={hasPermission('allocations.manage') || hasPermission('allocations.manage.managed') ? <Link className="btn" to={`/allocations/create?projectId=${encodeURIComponent(projectId ?? '')}&taskId=${encodeURIComponent(taskId ?? '')}`}>Allocate employee</Link> : undefined} />
+    <PageHeader eyebrow="Task details" title={task?.taskName ?? 'Task details'} description="Task, project, estimate, allocation, and timesheet information." actions={(hasPermission('allocations.manage') || hasPermission('allocations.manage.managed')) && canAllocateTask ? <Link className="btn" to={`/allocations/create?projectId=${encodeURIComponent(projectId ?? '')}&taskId=${encodeURIComponent(taskId ?? '')}`}>Allocate employee</Link> : undefined} />
     <Link className="btn-link" to="/tasks">Back to tasks</Link>
     <Status loading={tasks.loading} error={tasks.error} empty={!task && !tasks.loading} />
     {statusMessage && <div className="status-card">{statusMessage}</div>}

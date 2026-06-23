@@ -4,6 +4,7 @@ import { AppLayout } from './layouts/AppLayout';
 import { useAuth } from './auth/AuthContext';
 import { DashboardPage } from './pages/DashboardPage';
 import { ProjectsPage } from './pages/ProjectsPage';
+import { CreateProjectPage } from './pages/CreateProjectPage';
 import { ProjectDetailsPage } from './pages/ProjectDetailsPage';
 import { EmployeesPage } from './pages/EmployeesPage';
 import { EmployeeDetailsPage } from './pages/EmployeeDetailsPage';
@@ -52,6 +53,7 @@ export default function App() {
       <Route element={<AppLayout />}>
         <Route index element={<DashboardPage />} />
         <Route path="projects" element={<RequirePermission anyOf={['projects.view.all', 'projects.view.managed', 'projects.view.assigned']}><ProjectsPage /></RequirePermission>} />
+        <Route path="projects/create" element={<RequirePermission anyOf={['projects.manage']}><CreateProjectPage /></RequirePermission>} />
         <Route path="projects/:projectId" element={<RequirePermission anyOf={['projects.view.all', 'projects.view.managed', 'projects.view.assigned']}><ProjectDetailsPage /></RequirePermission>} />
         <Route path="tasks" element={<RequirePermission anyOf={['tasks.view.all', 'tasks.view.managed', 'tasks.view.assigned']}><TasksPage /></RequirePermission>} />
         <Route path="tasks/create" element={<RequirePermission anyOf={['tasks.manage', 'tasks.manage.managed']}><CreateTaskPage /></RequirePermission>} />

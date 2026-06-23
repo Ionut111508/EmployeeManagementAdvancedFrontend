@@ -192,6 +192,40 @@
   color: #475569;
 }
 
+.filter-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.filter-bar > label {
+  display: grid;
+  gap: 5px;
+  color: #475569;
+  font-size: .78rem;
+  font-weight: 800;
+}
+
+.capacity-table .capacity-hours,
+.capacity-table small {
+  display: block;
+}
+
+.capacity-table .capacity-hours {
+  color: #1d4ed8;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.capacity-table small {
+  margin-top: 3px;
+  color: #64748b;
+}
+
+.allocation-hours {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
 .gantt-bar {
   overflow: visible;
   cursor: help;
@@ -211,6 +245,52 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.gantt-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.gantt-summary span,
+.gantt-columns {
+  color: #64748b;
+  font-size: .78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.gantt-columns,
+.gantt-row {
+  display: grid;
+  grid-template-columns: minmax(190px, 1.35fr) 92px minmax(320px, 3fr) 92px 76px;
+  gap: 12px;
+  align-items: center;
+}
+
+.gantt-columns {
+  padding: 0 4px 8px;
+}
+
+.gantt-date,
+.gantt-hours {
+  color: #334155;
+  font-size: .82rem;
+  white-space: nowrap;
+}
+
+.gantt-hours {
+  color: #1d4ed8;
+}
+
+.gantt-active { background: #2563eb; }
+.gantt-future { background: #0891b2; }
+.gantt-completed { background: #64748b; }
 
 .gantt-tooltip {
   position: absolute;
@@ -308,6 +388,11 @@
   border-color: #bfdbfe;
 }
 
+.capacity-warning {
+  background: #fffbeb;
+  border-color: #fcd34d;
+}
+
 .review-controls {
   display: grid;
   gap: 8px;
@@ -353,6 +438,11 @@
 
   .project-access-list {
     grid-template-columns: 1fr;
+  }
+
+  .gantt-columns,
+  .gantt-row {
+    min-width: 820px;
   }
 }
 

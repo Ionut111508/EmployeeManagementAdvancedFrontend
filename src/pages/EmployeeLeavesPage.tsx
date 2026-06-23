@@ -13,7 +13,8 @@ export function EmployeeLeavesPage() {
     if (!session) throw new Error('Login is required.');
     return api.employeesVisibleTo(session.employeeId);
   }, [session?.employeeId]);
-  const leaves = useAsync(api.employeeLeaves, []);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const leaves = useAsync(api.employeeLeaves, [refreshKey]);
   const [message, setMessage] = useState<string | null>(null);
   const [selectedLeaveId, setSelectedLeaveId] = useState('');
   const [form, setForm] = useState({ employeeId: '', startDate: dateInputValue(), endDate: dateInputValue(), leaveType: 'Vacation', reason: '', replacementEmployeeId: '' });
@@ -25,8 +26,11 @@ export function EmployeeLeavesPage() {
     event.preventDefault();
     setMessage(null);
     try {
-      await api.createEmployeeLeave({ employeeId: isEmployee ? session!.employeeId : form.employeeId, startDate: form.startDate, endDate: form.endDate, leaveType: form.leaveType, reason: form.reason || null, replacementEmployeeId: isEmployee ? null : form.replacementEmployeeId || null });
+      const created = await api.createEmployeeLeave({ employeeId: isEmployee ? session!.employeeId : form.employeeId, startDate: form.startDate, endDate: form.endDate, leaveType: form.leaveType, reason: form.reason || null, replacementEmployeeId: isEmployee ? null : form.replacementEmployeeId || null });
       setMessage('Leave registered. Auto allocation will skip this employee in the selected period.');
+      setRefreshKey(current => current + 1);
+      if (!isEmployee) setSelectedLeaveId(created.employeeLeaveId);
+      setForm(current => ({ ...current, employeeId: isEmployee ? current.employeeId : '', reason: '', replacementEmployeeId: '' }));
     } catch (err) { setMessage(err instanceof Error ? err.message : 'Could not register leave.'); }
   }
 
@@ -36,13 +40,13 @@ export function EmployeeLeavesPage() {
   return <section className="page-stack">
     <PageHeader eyebrow="Availability" title="Employee leaves" description="Manage employee leaves. If no replacement is available, the task must be replanned or delayed." />
     <form className="card form-grid" onSubmit={saveLeave}>
-      {!isEmployee && <select className="field" value={form.employeeId} onChange={e => setForm({ ...form, employeeId: e.target.value })} required><option value="">Employee on leave</option>{selectableEmployees.map(e => <option key={e.employeeId} value={e.employeeId}>{e.firstName} {e.lastName}</option>)}</select>}
+      {!isEmployee && <label>Employee on leave<select className="field" value={form.employeeId} onChange={e => setForm({ ...form, employeeId: e.target.value })} required><option value="">Select employee</option>{selectableEmployees.map(e => <option key={e.employeeId} value={e.employeeId}>{e.firstName} {e.lastName}</option>)}</select></label>}
       {isEmployee && <div className="field field-static">Leave request for {session?.fullName}</div>}
-      <input className="field" type="date" value={form.startDate} onChange={e => setForm({ ...form, startDate: e.target.value })} required />
-      <input className="field" type="date" value={form.endDate} onChange={e => setForm({ ...form, endDate: e.target.value })} required />
-      <select className="field" value={form.leaveType} onChange={e => setForm({ ...form, leaveType: e.target.value })}><option>Vacation</option><option>Medical</option><option>Personal</option></select>
-      <input className="field" placeholder="Reason" value={form.reason} onChange={e => setForm({ ...form, reason: e.target.value })} />
-      {!isEmployee && <select className="field" value={form.replacementEmployeeId} onChange={e => setForm({ ...form, replacementEmployeeId: e.target.value })}><option value="">No replacement selected</option>{(employees.data ?? []).filter(e => e.employeeId !== form.employeeId).map(e => <option key={e.employeeId} value={e.employeeId}>{e.firstName} {e.lastName}</option>)}</select>}
+      <label>Start date<input className="field" type="date" min={dateInputValue()} value={form.startDate} onChange={e => setForm({ ...form, startDate: e.target.value, endDate: form.endDate < e.target.value ? e.target.value : form.endDate })} required /></label>
+      <label>End date<input className="field" type="date" min={form.startDate || dateInputValue()} value={form.endDate} onChange={e => setForm({ ...form, endDate: e.target.value })} required /></label>
+      <label>Leave type<select className="field" value={form.leaveType} onChange={e => setForm({ ...form, leaveType: e.target.value })}><option>Vacation</option><option>Medical</option><option>Personal</option></select></label>
+      <label>Reason (optional)<input className="field" value={form.reason} onChange={e => setForm({ ...form, reason: e.target.value })} /></label>
+      {!isEmployee && <label>Replacement (optional)<select className="field" value={form.replacementEmployeeId} onChange={e => setForm({ ...form, replacementEmployeeId: e.target.value })}><option value="">No replacement selected</option>{(employees.data ?? []).filter(e => e.employeeId !== form.employeeId).map(e => <option key={e.employeeId} value={e.employeeId}>{e.firstName} {e.lastName}</option>)}</select></label>}
       <button className="btn">Register leave</button>
       {message && <p className="muted form-message">{message}</p>}
     </form>
