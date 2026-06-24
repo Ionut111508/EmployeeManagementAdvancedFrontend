@@ -242,8 +242,18 @@
 }
 
 .gantt-bar-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  min-width: max-content;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: inherit;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, .3);
 }
 
 .gantt-summary {
