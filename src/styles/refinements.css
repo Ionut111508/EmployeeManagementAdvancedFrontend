@@ -265,6 +265,20 @@
   letter-spacing: .06em;
 }
 
+.gantt-summary > div,
+.gantt-staffing {
+  display: grid;
+  gap: 4px;
+}
+
+.gantt-summary strong {
+  margin-top: 3px;
+}
+
+.gantt-project-range {
+  text-align: right;
+}
+
 .gantt-columns,
 .gantt-row {
   display: grid;
@@ -286,6 +300,21 @@
 
 .gantt-hours {
   color: #1d4ed8;
+}
+
+.gantt-staffing {
+  color: #334155;
+  font-size: .8rem;
+  white-space: nowrap;
+}
+
+.gantt-staffing span {
+  color: #64748b;
+}
+
+.capacity-help {
+  margin: -4px 0 14px;
+  font-size: .86rem;
 }
 
 .gantt-active { background: #2563eb; }
@@ -497,5 +526,9 @@
   .delete-confirmation {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .gantt-project-range {
+    text-align: left;
   }
 }

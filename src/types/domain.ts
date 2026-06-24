@@ -102,9 +102,7 @@ export interface TaskPlanningPreview {
 }
 export interface ManualTaskAllocation { employeeId: string; hoursPerDay: number; allocationStartDate?: string | null; allocationEndDate?: string | null; }
 export interface CreatePlannedTaskRequest extends TaskPlanningPreviewRequest {
-  taskId: string;
   taskName: string;
-  descriptionId: string;
   descriptionText: string;
   allocationMode: 'Automatic' | 'Manual';
   manualAllocations: ManualTaskAllocation[];

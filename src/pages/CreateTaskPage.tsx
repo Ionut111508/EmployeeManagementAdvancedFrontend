@@ -11,7 +11,7 @@ const today = dateInputValue();
 const twoWeeksFromNow = dateInputValue(addDays(new Date(), 14));
 
 const emptyForm = {
-  projectId: '', taskId: '', taskName: '', estimatedHours: '40', descriptionId: '',
+  projectId: '', taskName: '', estimatedHours: '40',
   descriptionText: '', requiredSkillId: '', plannedStartDate: today, plannedEndDate: twoWeeksFromNow,
   allocationMode: 'Automatic' as 'Automatic' | 'Manual'
 };
@@ -77,10 +77,8 @@ export function CreateTaskPage() {
     try {
       const result = await api.createPlannedTask({
         projectId: form.projectId,
-        taskId: form.taskId,
         taskName: form.taskName,
         estimatedHours: Number(form.estimatedHours),
-        descriptionId: form.descriptionId,
         descriptionText: form.descriptionText,
         requiredSkillId: form.requiredSkillId || null,
         plannedStartDate: form.plannedStartDate,
@@ -112,14 +110,12 @@ export function CreateTaskPage() {
           <option value="">Select project</option>
           {(projects.data ?? []).map(project => <option key={project.projectId} value={project.projectId}>{project.projectName}</option>)}
         </select>
-        <input className="field" placeholder="Task ID" value={form.taskId} onChange={e => setForm({ ...form, taskId: e.target.value })} required />
         <input className="field" placeholder="Task name" value={form.taskName} onChange={e => setForm({ ...form, taskName: e.target.value })} required />
         <input className="field" type="number" min="0.25" step="0.25" placeholder="Estimated hours" value={form.estimatedHours} onChange={e => updatePlanningField('estimatedHours', e.target.value)} required />
         <select className="field" value={form.requiredSkillId} onChange={e => updatePlanningField('requiredSkillId', e.target.value)}>
           <option value="">No minimum skill</option>
           {(skills.data ?? []).map(skill => <option key={skill.skillId} value={skill.skillId}>{skill.skillName} {skill.skillLevel ? `- ${skill.skillLevel}` : ''}</option>)}
         </select>
-        <input className="field" placeholder="Description ID" value={form.descriptionId} onChange={e => setForm({ ...form, descriptionId: e.target.value })} required />
         <label>Planned start<input className="field" type="date" min={today} value={form.plannedStartDate} onChange={e => { updatePlanningField('plannedStartDate', e.target.value); if (form.plannedEndDate < e.target.value) updatePlanningField('plannedEndDate', e.target.value); }} required /></label>
         <label>Planned end<input className="field" type="date" min={form.plannedStartDate || today} value={form.plannedEndDate} onChange={e => updatePlanningField('plannedEndDate', e.target.value)} required /></label>
         <textarea className="field field-span" placeholder="Task description" value={form.descriptionText} onChange={e => setForm({ ...form, descriptionText: e.target.value })} required />
@@ -149,7 +145,8 @@ export function CreateTaskPage() {
 
         {form.allocationMode === 'Manual' && <>
           <div className="gantt-header"><h3>Manual selection</h3><span className="badge">{formatNumber(manualTotal)}h selected; {formatNumber(Math.max(plan.estimatedHours - manualTotal, 0))}h remaining</span></div>
-          <table className="data-table"><thead><tr><th>Select</th><th>Employee</th><th>Matched skill</th><th>Current load</th><th>Daily free</th><th>Safe total</th><th>Hours/day</th></tr></thead><tbody>{plan.candidates.map(candidate => {
+          <p className="muted capacity-help"><strong>Existing load</strong> is the work already allocated in this interval. <strong>Safe capacity</strong> is the maximum additional work that can be assigned without exceeding the employee's daily norm.</p>
+          <table className="data-table"><thead><tr><th>Select</th><th>Employee</th><th>Matched skill</th><th title="Hours already allocated compared with the employee's full capacity in this interval.">Existing load</th><th>Daily free</th><th title="Maximum additional hours that can be safely assigned in this interval.">Safe capacity</th><th>Hours/day</th></tr></thead><tbody>{plan.candidates.map(candidate => {
             const eligible = candidate.maxAssignableHours > 0;
             const selected = manualHours[candidate.employeeId] !== undefined;
             const maximumDailyHours = Math.min(8, Math.floor(candidate.minimumDailyAvailableHours));
