@@ -77,10 +77,11 @@ export function GanttPage() {
   const filtered = useMemo(() => rows.filter(row => {
     const matchesProject = projectFilter === 'all' || row.projectId === projectFilter;
     const matchesEmployee = employeeFilter === 'all' || row.allocations.some(item => item.employeeId === employeeFilter);
-    const isClosed = row.task.status === 'Completed' || row.task.status === 'Cancelled' || row.end < today;
-    const isActive = !isClosed && row.start <= today && row.end >= today;
-    const isFuture = !isClosed && row.start > today;
-    const matchesStatus = statusFilter === 'all' || (statusFilter === 'active' && isActive) || (statusFilter === 'closed' && isClosed) || (statusFilter === 'future' && isFuture);
+    const isDelayed = row.task.status === 'Delayed';
+    const isClosed = row.task.status === 'Completed' || row.task.status === 'Cancelled';
+    const isActive = !isClosed && !isDelayed && row.start <= today && row.end >= today;
+    const isFuture = !isClosed && !isDelayed && row.start > today;
+    const matchesStatus = statusFilter === 'all' || (statusFilter === 'active' && isActive) || (statusFilter === 'delayed' && isDelayed) || (statusFilter === 'closed' && isClosed) || (statusFilter === 'future' && isFuture);
     return matchesProject && matchesEmployee && matchesStatus;
   }), [rows, projectFilter, employeeFilter, statusFilter]);
 
@@ -97,7 +98,7 @@ export function GanttPage() {
 
   return <section className="page-stack">
     <PageHeader eyebrow="Planning" title="Gantt Chart" description="Project schedules with one timeline row per task." />
-    <div className="card filter-bar"><strong>Filters</strong><label>Project<select className="field" value={projectFilter} onChange={e => setProjectFilter(e.target.value)}><option value="all">All projects</option>{projects.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>{session?.role !== 'Employee' && <label>Employee<select className="field" value={employeeFilter} onChange={e => setEmployeeFilter(e.target.value)}><option value="all">All employees</option>{employees.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>}<label>Status<select className="field" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option value="all">All statuses</option><option value="active">Active now</option><option value="future">Future</option><option value="closed">Completed</option></select></label><span className="badge">{filtered.length} tasks</span></div>
+    <div className="card filter-bar"><strong>Filters</strong><label>Project<select className="field" value={projectFilter} onChange={e => setProjectFilter(e.target.value)}><option value="all">All projects</option>{projects.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>{session?.role !== 'Employee' && <label>Employee<select className="field" value={employeeFilter} onChange={e => setEmployeeFilter(e.target.value)}><option value="all">All employees</option>{employees.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>}<label>Status<select className="field" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option value="all">All statuses</option><option value="active">Active now</option><option value="future">Future</option><option value="delayed">Delayed</option><option value="closed">Completed</option></select></label><span className="badge">{filtered.length} tasks</span></div>
     <Status loading={loading} error={error} empty={filtered.length === 0} />
     {projectGroups.map(group => <div className="table-card gantt-card" key={group.projectId}>
       <div className="gantt-summary"><div><span>Project</span><strong>{group.projectName}</strong></div><div className="gantt-project-range"><span>Planned interval</span><strong>{formatDate(dateInputValue(group.start))} - {formatDate(dateInputValue(group.end))}</strong></div></div>
@@ -106,7 +107,7 @@ export function GanttPage() {
         {group.tasks.map(row => {
           const left = Math.max(0, ((row.start.getTime() - group.start.getTime()) / day) / group.totalDays * 100);
           const width = Math.max(3, (((row.end.getTime() - row.start.getTime()) / day) + 1) / group.totalDays * 100);
-          const timelineStatus = row.task.status === 'Completed' || row.task.status === 'Cancelled' || row.end < today ? 'completed' : row.start > today ? 'future' : 'active';
+          const timelineStatus = row.task.status === 'Delayed' ? 'delayed' : row.task.status === 'Completed' || row.task.status === 'Cancelled' ? 'completed' : row.start > today ? 'future' : 'active';
           const staffing = row.allocations.length === 0 ? 'Unstaffed' : `${row.employeeNames.length} ${row.employeeNames.length === 1 ? 'person' : 'people'}`;
           return <div className="gantt-row" key={`${row.projectId}-${row.task.taskId}`}>
             <div className="gantt-label"><strong>{row.task.taskName}</strong><span>{row.task.status}</span></div>

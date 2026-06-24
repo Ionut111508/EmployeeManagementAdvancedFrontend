@@ -320,6 +320,7 @@
 .gantt-active { background: #2563eb; }
 .gantt-future { background: #0891b2; }
 .gantt-completed { background: #64748b; }
+.gantt-delayed { background: #dc2626; }
 
 .gantt-tooltip {
   position: absolute;
@@ -446,9 +447,18 @@
 
 .timesheet-pending { color: #92400e; background: #fef3c7; }
 .timesheet-approved, .task-completed { color: #166534; background: #dcfce7; }
-.timesheet-rejected, .task-cancelled, .task-blocked { color: #991b1b; background: #fee2e2; }
+.timesheet-rejected, .task-cancelled, .task-blocked, .task-delayed { color: #991b1b; background: #fee2e2; }
 .task-inprogress { color: #1d4ed8; background: #dbeafe; }
 .task-ready { color: #075985; background: #e0f2fe; }
+
+.delayed-notice {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: #991b1b;
+  background: #fff1f2;
+  border-color: #fecdd3;
+}
 
 .workflow-select {
   width: 100%;

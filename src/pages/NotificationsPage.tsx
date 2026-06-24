@@ -6,7 +6,7 @@ import { Status } from '../components/ui/Status';
 import { useAsync } from '../hooks/useAsync';
 import { formatDate } from '../utils/format';
 
-const icons = { StaffingDeficit: Users, OverAllocation: CircleAlert, TimesheetApproval: Clock3 };
+const icons = { StaffingDeficit: Users, OverAllocation: CircleAlert, TimesheetApproval: Clock3, TaskDelayed: CircleAlert };
 
 export function NotificationsPage() {
   const notifications = useAsync(() => api.notifications(30), []);
